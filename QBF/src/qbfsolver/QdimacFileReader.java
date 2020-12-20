@@ -6,6 +6,7 @@ public class QdimacFileReader {
 	public Formula read() {
 		Scanner sc = new Scanner(System.in);
 		String first = sc.nextLine();
+		first = first.trim();
 		String[] s = first.split("\\s+");
 		int n = Integer.valueOf(s[2]);
 		int m = Integer.valueOf(s[3]);
@@ -13,6 +14,7 @@ public class QdimacFileReader {
 		int i;
 		while (m > 0) {
 			first = sc.nextLine();
+			first = first.trim();
 			s = first.split("\\s+");
 			if (s[0].charAt(0) == 'e') {
 				for (i = 1; i < s.length; ++i) {
@@ -55,7 +57,7 @@ e 1 2 3 4 0
 -1 2 0
 2 -3 -4 0
 
-p cnf 4 2
--1 2 0
-2 -3 -4 0
+  p cnf 4 2
+  -1 2 0
+ 2 -3 -4 0
  * */

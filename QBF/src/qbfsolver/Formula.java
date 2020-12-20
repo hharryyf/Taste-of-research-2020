@@ -75,6 +75,12 @@ public class Formula {
 	    while(it.hasNext()){
 	        quantifier.addFirst(new Quantifier(true, it.next()));
 	    }
+	    // make sure existential quantifier always go first
+	    if (!this.quantifier.isEmpty()) {
+	    	if (!this.quantifier.getFirst().isMax()) {
+	    		this.quantifier.addFirst(new Quantifier(true, this.n + 1));
+	    	}
+	    }
 	}
 	
 	int evaluate() {

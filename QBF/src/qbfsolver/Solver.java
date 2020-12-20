@@ -1,5 +1,5 @@
 package qbfsolver;
 
 public interface Solver {
-	boolean solve(Formula f);
+	public boolean solve(Formula f);
 }
