@@ -7,46 +7,52 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-public class Formula {
-	private LinkedList<Cnf> cnf;
+public class Formula implements CnfExpression {
+	private LinkedList<Disjunction> cnf;
 	private LinkedList<Quantifier> quantifier;
 	private boolean satisfied;
 	private int n;
 	public Formula(int n) {
-		this.cnf = new LinkedList<Cnf>();
+		this.cnf = new LinkedList<Disjunction>();
 		this.quantifier = new LinkedList<Quantifier>();
 		this.satisfied = true;
 		this.n = n;
 	}
 	
+	@Override
 	public int getn() {
 		return this.n;
 	}
 	
-	public void addcnf(Cnf c) {
+	@Override
+	public void addcnf(Disjunction c) {
 		this.cnf.add(c);
 	}
 	
+	@Override
 	public void addquantifier(Quantifier q) {
 		this.quantifier.add(q);
 	}
 	
+	@Override
 	public Quantifier peek() {
 		return this.quantifier.getFirst();
 	}
 	
+	@Override
 	public void dropquantifier() {
 		this.quantifier.removeFirst();
 	}
 	
+	@Override
 	public void set(int v, int val) {
-		for (Cnf c : this.cnf) {
+		for (Disjunction c : this.cnf) {
 			c.set(v, val);
 		}
 		
-		 ListIterator<Cnf> iter = cnf.listIterator();
+		 ListIterator<Disjunction> iter = cnf.listIterator();
 		 while (iter.hasNext()) {
-			 Cnf c = iter.next();
+			 Disjunction c = iter.next();
 			 int ret = c.evaluate();
 			 if (ret == 1) {
 				 iter.remove();
@@ -57,10 +63,16 @@ public class Formula {
 		 }
 	}
 	
+	@Override
+	public void setSatisfied(boolean val) {
+		this.satisfied = val;
+	}
+	
 	// normalize the QBF such that it contains no free variables
+	@Override
 	public void normalize() {
 		Set<Integer> s = new HashSet<Integer>();
-		for (Cnf c : this.cnf) {
+		for (Disjunction c : this.cnf) {
 			List<Integer> list = c.getSt();
 			for (Integer it : list) {
 				s.add(Math.abs(it));
@@ -83,23 +95,25 @@ public class Formula {
 	    }
 	}
 	
-	int evaluate() {
+	@Override
+	public int evaluate() {
 		if (!this.satisfied) return 0;
 		if (cnf.isEmpty()) return 1;
 		return -1;
 	}
 	
+	@Override
 	public Formula duplicate() {
 		Formula f = new Formula(this.n);
 		for (Quantifier q : this.quantifier) {
 			f.addquantifier(q.duplicate());
 		}
 		
-		for (Cnf c : this.cnf) {
+		for (Disjunction c : this.cnf) {
 			f.addcnf(c.duplidate());
 		}
 		
-		f.satisfied = this.satisfied;
+		f.setSatisfied(this.satisfied);
 		return f;
 	}
 	

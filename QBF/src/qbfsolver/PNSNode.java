@@ -3,35 +3,37 @@ package qbfsolver;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PNSNode implements TreeNode {
-	private Formula f;
+public class PNSNode {
+	private boolean isMax = true;
 	private List<PNSNode> child;
 	private PNSNode parent;
 	private int pn, dn;
 	public PNSNode(Formula f) {
-		this.f = f;
 		this.child = new ArrayList<PNSNode>();
 		if (f.evaluate() == 1) {
 			this.pn = 0;
-			this.dn = 10000000;
+			this.dn = 100000000;
 		} else if (f.evaluate() == 0) {
-			this.pn = 10000000;
+			this.pn = 100000000;
 			this.dn = 0;
 		} else {
 			this.pn = 1;
 			this.dn = 1;
+			this.isMax = f.peek().isMax();
 		}
 		this.parent = null;
 	}
 	
-	@Override
-	public boolean isWin() {
-		return this.dn >= 10000000;
+	public boolean isMax() {
+		return this.isMax;
 	}
 	
-	@Override
+	public boolean isWin() {
+		return this.dn >= 100000000;
+	}
+	
 	public boolean isLost() {
-		return this.pn >= 10000000;
+		return this.pn >= 100000000;
 	}
 	
 	public int getPn() {
@@ -46,7 +48,7 @@ public class PNSNode implements TreeNode {
 		this.parent = p;
 	}
 	
-	public TreeNode getParent() {
+	public PNSNode getParent() {
 		return this.parent;
 	}
 	
@@ -55,11 +57,10 @@ public class PNSNode implements TreeNode {
 	}
 	
 	public boolean isTerminal() {
-		return this.f.evaluate() != -1;
+		return this.isLost() || this.isWin();
 	}
 	
-	@Override
-	public void expansion() {
+	public void expansion(Formula f) {
 		Formula f1 = f.duplicate();
 		Formula f2 = f.duplicate();
 		f1.set(f.peek().getVal(), 0);
@@ -74,30 +75,39 @@ public class PNSNode implements TreeNode {
 		this.child.add(n2);
 	}
 	
-	@Override
-	public TreeNode MPN() {
+	public PNSNode MPN(Formula f) {
 		if (!this.isExpanded() && !this.isTerminal()) return null;
 		PNSNode ret = null;
-		if (this.f.peek().isMax()) {
-			for (PNSNode nd : this.child) {
-				if (ret == null || ret.getPn() > nd.getPn()) {
-					ret = nd;
+		int idx = -1, i;
+		if (this.isMax()) {
+			for (i = 0 ; i < child.size(); ++i) {
+				if (ret == null || ret.getPn() > child.get(i).getPn()) {
+					ret = child.get(i);
+					idx = i;
 				}
 			}
 		} else {
-			for (PNSNode nd : this.child) {
-				if (ret == null || ret.getDn() > nd.getDn()) {
-					ret = nd;
+			for (i = 0 ; i < child.size(); ++i) {
+				if (ret == null || ret.getDn() > child.get(i).getDn()) {
+					ret = child.get(i);
+					idx = i;
 				}
 			}
+		}
+		
+		if (idx == 0) {
+			f.set(f.peek().getVal(), 0);
+			f.dropquantifier();
+		} else if (idx == 1) {
+			f.set(f.peek().getVal(), 1);
+			f.dropquantifier();
 		}
 		return ret;
 	}
 	
-	@Override
 	public void backpropagation() {
 		if (this.isTerminal() || !this.isExpanded()) return;
-		if (this.f.peek().isMax()) {
+		if (this.isMax()) {
 			this.pn = child.get(0).pn;
 			this.dn = 0;
 			for (PNSNode c : child) {
@@ -112,5 +122,11 @@ public class PNSNode implements TreeNode {
 				this.dn = Math.min(this.dn, c.getDn());
 			}
 		}
+		if (this.isTerminal()) {
+			this.child.clear();
+			if (this.isWin()) this.dn = 100000000;
+			if (this.isLost()) this.pn = 100000000;
+		}
 	}
 }
+// store a boolean win/lose/no, update the flag of the parent, no inf addition

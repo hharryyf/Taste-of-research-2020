@@ -6,10 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class Cnf {
+public class Disjunction {
 	private Set<Integer> st;
 	private boolean satisfied;
-	public Cnf() {
+	public Disjunction() {
 		this.st = new HashSet<Integer>();
 		this.satisfied = false;
 	}
@@ -35,7 +35,7 @@ public class Cnf {
 		st.add(val);
 	}
 	
-	// set v to be val
+	// set v to be value
 	public void set(int v, int val) {
 		if (st.contains(v)) {
 			if (val == 1) {
@@ -43,7 +43,9 @@ public class Cnf {
 			} else {
 				st.remove(v);
 			}
-		} else if (st.contains(-v)) {
+		} 
+		
+		if (st.contains(-v)) {
 			if (val == 1) {
 				st.remove(-v);
 			} else {
@@ -58,8 +60,8 @@ public class Cnf {
 		return -1;
 	}
 
-	public Cnf duplidate() {
-		Cnf c = new Cnf();
+	public Disjunction duplidate() {
+		Disjunction c = new Disjunction();
 		Iterator<Integer> it = st.iterator();
 	    while(it.hasNext()){
 	        c.add(it.next());

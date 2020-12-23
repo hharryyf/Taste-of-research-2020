@@ -33,7 +33,7 @@ public class QdimacFileReader {
 					}
 				}
 			} else {
-				Cnf c = new Cnf();
+				Disjunction c = new Disjunction();
 				for (i = 0 ; i < s.length; ++i) {
 					if (Integer.valueOf(s[i]) != 0) {
 						c.add(Integer.valueOf(s[i]));
@@ -60,4 +60,21 @@ e 1 2 3 4 0
   p cnf 4 2
   -1 2 0
  2 -3 -4 0
+ 
+ 
+ p cnf 5 9
+ a 1 0
+ e 2 0
+ a 3 0
+ e 4 5 0
+ 1 3 4 0
+ -1 3 4 0
+ 1 -4 -5 0
+ -1 2 5 0
+ 1 -3 4 -5 0
+ -1 3 -4 0
+ -1 -2 -3 -5 0
+ 1 -4 0
+ 3 -2 1 0
+ 
  * */

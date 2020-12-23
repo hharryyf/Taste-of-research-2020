@@ -25,3 +25,6 @@ public class BruteForce implements Solver {
 	}
 
 }
+
+// unit propagation 
+
