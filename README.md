@@ -12,5 +12,8 @@ update 23/12/2020:
 Some memory optimization was done, at most 4 formulas are stored in memory. Used strategy design pattern on the CnfExpression class,
 get ready for implementing DPLL algorithm and unit propagation.
 
+update 24/12/2020:
+Implement a very brute force version of the unit-propagation algorithm, tested correctly and the performance of the solver is improved
+significantly. 
 
 

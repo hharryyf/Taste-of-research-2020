@@ -41,7 +41,14 @@ public class Formula implements CnfExpression {
 	
 	@Override
 	public void dropquantifier() {
-		this.quantifier.removeFirst();
+		if (!this.quantifier.isEmpty()) {
+			this.quantifier.removeFirst();
+		}
+	}
+	
+	@Override
+	public void simplify() {
+		return;
 	}
 	
 	@Override

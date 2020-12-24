@@ -8,7 +8,7 @@ public class PNSNode {
 	private List<PNSNode> child;
 	private PNSNode parent;
 	private int pn, dn;
-	public PNSNode(Formula f) {
+	public PNSNode(CnfExpression f) {
 		this.child = new ArrayList<PNSNode>();
 		if (f.evaluate() == 1) {
 			this.pn = 0;
@@ -60,13 +60,15 @@ public class PNSNode {
 		return this.isLost() || this.isWin();
 	}
 	
-	public void expansion(Formula f) {
-		Formula f1 = f.duplicate();
-		Formula f2 = f.duplicate();
+	public void expansion(CnfExpression f) {
+		CnfExpression f1 = f.duplicate();
+		CnfExpression f2 = f.duplicate();
 		f1.set(f.peek().getVal(), 0);
 		f2.set(f.peek().getVal(), 1);
 		f1.dropquantifier();
 		f2.dropquantifier();
+		f1.simplify();
+		f2.simplify();
 		PNSNode n1 = new PNSNode(f1);
 		PNSNode n2 = new PNSNode(f2);
 		n1.setParent(this);
@@ -75,7 +77,7 @@ public class PNSNode {
 		this.child.add(n2);
 	}
 	
-	public PNSNode MPN(Formula f) {
+	public PNSNode MPN(CnfExpression f) {
 		if (!this.isExpanded() && !this.isTerminal()) return null;
 		PNSNode ret = null;
 		int idx = -1, i;
@@ -98,9 +100,11 @@ public class PNSNode {
 		if (idx == 0) {
 			f.set(f.peek().getVal(), 0);
 			f.dropquantifier();
+			f.simplify();
 		} else if (idx == 1) {
 			f.set(f.peek().getVal(), 1);
 			f.dropquantifier();
+			f.simplify();
 		}
 		return ret;
 	}

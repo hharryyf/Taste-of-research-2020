@@ -31,7 +31,27 @@ public class Disjunction {
 		return list;
 	}
 	
+	public List<Integer> getVariable() {
+		List<Integer> list = new ArrayList<Integer>();
+		Iterator<Integer> it = st.iterator();
+	    while(it.hasNext()){
+	        list.add(it.next());
+	    }
+		return list;
+	}
+	
+	public int getSize() {
+		return this.st.size();
+	}
+	
 	public void add(int val) {
+		// if the set contains both val and -val
+		// then it is considered as satisfied already
+		if (this.satisfied) return;
+		if (st.contains(-val)) {
+			this.satisfied = true;
+			st.clear();
+		}
 		st.add(val);
 	}
 	

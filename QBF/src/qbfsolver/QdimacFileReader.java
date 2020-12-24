@@ -3,14 +3,14 @@ package qbfsolver;
 import java.util.Scanner;
 
 public class QdimacFileReader {
-	public Formula read() {
+	public CnfExpression read() {
 		Scanner sc = new Scanner(System.in);
 		String first = sc.nextLine();
 		first = first.trim();
 		String[] s = first.split("\\s+");
 		int n = Integer.valueOf(s[2]);
 		int m = Integer.valueOf(s[3]);
-		Formula ret = new Formula(n);
+		CnfExpression ret = new OptimizedFormula(n);
 		int i;
 		while (m > 0) {
 			first = sc.nextLine();

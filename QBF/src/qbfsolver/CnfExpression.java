@@ -9,6 +9,7 @@ public interface CnfExpression {
 	public void set(int v, int val);
 	public void setSatisfied(boolean val);
 	public void normalize();
+	public void simplify();
 	public int evaluate();
 	public CnfExpression duplicate();
 }
