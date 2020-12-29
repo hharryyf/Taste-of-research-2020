@@ -16,4 +16,9 @@ update 24/12/2020:
 Implement a very brute force version of the unit-propagation algorithm, tested correctly and the performance of the solver is improved
 significantly. 
 
+update 28/12/2020:
+Implement the second version of proof number search, in this version, the backtracking procedure would stop at the first node which
+pn and dn are not changed. And magically, the run time for the gttt3x3 example was reduced to 1min instead of the origional 8min.
+
+
 

@@ -40,7 +40,11 @@ public class QdimacFileReader {
 					}
 				}
 				
-				if (!c.isEmpty()) ret.addcnf(c);
+				if (!c.isEmpty()) {
+					ret.addcnf(c);
+				} else {
+					ret.setSatisfied(false);
+				}
 				m--;
 			}
 		}

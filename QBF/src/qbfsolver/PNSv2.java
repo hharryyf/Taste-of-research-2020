@@ -1,36 +1,49 @@
 package qbfsolver;
 
-public class PNS implements Solver {
+import java.util.Stack;
+
+public class PNSv2 implements Solver {
 	private int maxT = 5000000;
-	public PNS() {
+	public PNSv2() {
 		
 	}
 	
-	public PNS(int maxT) {
+	public PNSv2(int maxT) {
 		this.maxT = maxT;
 	}
 	
 	@Override
 	public boolean solve(CnfExpression f) {
-		PNSNode root = new PNSNode(f);
+		PNSNode root = new PNSNode(f), curr = root;
 		int i = 0;
+		Stack<CnfExpression> stk = new Stack<CnfExpression>();
 		while (i <= this.maxT && !root.isWin() && !root.isLost()) {
 			if (i % 1000 == 0) {
 				System.out.println("Iteration #" + i + " pn = " + root.getPn() + " dn= " + root.getDn());
 			}
-			PNSNode curr = root, it;
-			CnfExpression fp = f.duplicate();
+			
+			if (stk.empty()) {
+				stk.push(f.duplicate());
+			}
+			
+			CnfExpression fp = stk.peek().duplicate();
+			if (curr == null) curr = root;
+			PNSNode it;
 			while (true) {
 				// System.out.println(fp);
 				it = curr.MPN(fp);
 				if (it == null) break;
+				stk.push(fp.duplicate());
 				curr = it;
 			}
 			
 			curr.expansion(fp);
 			while (curr != null) {
+				int pn = curr.getPn(), dn = curr.getDn();
 				curr.backpropagation();
+				if (pn == curr.getPn() && dn == curr.getDn()) break;
 				curr = curr.getParent();
+				stk.pop();
 			}
 			
 			i++;
@@ -44,9 +57,3 @@ public class PNS implements Solver {
 	}
 
 }
-
-/*
- * no formula if the node is expanded, 
- * start with the formula, only part of the formula
- * 
- * */
