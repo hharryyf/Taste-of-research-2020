@@ -1,7 +1,7 @@
 package qbfsolver;
 
 public class PNS implements Solver {
-	private int maxT = 5000000;
+	private int maxT = 1000000;
 	public PNS() {
 		
 	}
@@ -35,11 +35,19 @@ public class PNS implements Solver {
 			
 			i++;
 		}
-		
+		Result res = ResultGenerator.getInstance();
 		System.out.println("Iteration " + i + " pn = " + root.getPn() + " dn= " + root.getDn());
-		if (root.isLost()) return false;
-		if (root.isWin()) return true;
-		System.err.println("Failed to get the answer within " + this.maxT + " iterations!");
+		res.setIteration(i);
+		if (root.isLost()) {
+			res.setTruth(false);
+			return false;
+		}
+		if (root.isWin()) {
+			res.setTruth(true);
+			return true;
+		}
+		
+		res.setIteration(maxT + 1);
 		return false;
 	}
 

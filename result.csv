@@ -1,0 +1,7 @@
+QBF_instance,version,time
+gttt_1_1_000111_3x3_b.qdimacs,first_qbfv3.jar B,time limit exceeded
+gttt_1_1_000111_3x3_torus_b.qdimacs,first_qbfv3.jar B,time limit exceeded
+gttt_1_1_000111_3x3_b.qdimacs,first_qbfv3.jar N,332.1262302
+gttt_1_1_000111_3x3_torus_b.qdimacs,first_qbfv3.jar N,251.123564
+gttt_1_1_000111_3x3_b.qdimacs,first_qbfv3.jar,55.52852058
+gttt_1_1_000111_3x3_torus_b.qdimacs,first_qbfv3.jar,58.09560204
