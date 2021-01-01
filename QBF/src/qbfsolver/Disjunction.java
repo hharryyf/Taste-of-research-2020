@@ -18,6 +18,10 @@ public class Disjunction {
 		return st.contains(val) || st.contains(-val);
 	}
 	
+	public boolean contains(int val) {
+		return st.contains(val);
+	}
+	
 	public boolean isEmpty() {
 		return this.st.isEmpty();
 	}

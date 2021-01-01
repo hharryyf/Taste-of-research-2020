@@ -20,5 +20,8 @@ update 28/12/2020:
 Implement the second version of proof number search, in this version, the backtracking procedure would stop at the first node which
 pn and dn are not changed. And magically, the run time for the gttt3x3 example was reduced to 1min instead of the origional 8min.
 
+update 1/1/2021:
+Implement a brute force version of the pure literal elimination and it can be seen that the number of iterations was reduced to 1/5.
+
 
 

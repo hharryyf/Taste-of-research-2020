@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -108,6 +109,7 @@ public class OptimizedFormula implements CnfExpression {
 		unit_propagation();
 		eliminate_useless_quantifiers();
 		pure_literal_elimination();
+		eliminate_useless_quantifiers();
 	}
 	
 	private void eliminate_useless_quantifiers() {
@@ -165,7 +167,41 @@ public class OptimizedFormula implements CnfExpression {
 	}
 	
 	private void pure_literal_elimination() {
-		
+		if (evaluate() == -1) {
+			TreeMap<Integer, Integer> mp = new TreeMap<>();
+			for (Quantifier q : this.quantifiers.values()) {
+				boolean haspositive = false, hasnegative = false;
+				for (Disjunction d : this.cnf) {
+					if (d.evaluate() == -1 && d.contains(q.getVal())) {
+						haspositive = true;
+					}
+					
+					if (d.evaluate() == -1 && d.contains(-q.getVal())) {
+						hasnegative = true;
+					}
+				}
+				
+				if (haspositive && !hasnegative) {
+					if (q.isMax()) {
+						mp.put(q.getVal(), 1);
+					} else {
+						mp.put(q.getVal(), 0);
+					}
+				}
+				
+				if (!haspositive && hasnegative) {
+					if (q.isMax()) {
+						mp.put(q.getVal(), 0);
+					} else {
+						mp.put(q.getVal(), 1);
+					}
+				}
+			}
+			
+			for (Map.Entry<Integer, Integer> entry : mp.entrySet()) {
+				this.set(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 	
 	@Override
