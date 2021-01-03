@@ -20,6 +20,14 @@ public class PNSNode {
 			this.pn = 1;
 			this.dn = 1;
 			this.isMax = f.peek().isMax();
+			if (ResultGenerator.getCommandLine().getType() == 0 || 
+				ResultGenerator.getCommandLine().getType() == 3) {
+				if (this.isMax) {
+					this.dn = 2;
+				} else {
+					this.pn = 2;
+				}
+			}
 		}
 		this.parent = null;
 	}

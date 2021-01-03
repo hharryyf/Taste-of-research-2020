@@ -23,5 +23,8 @@ pn and dn are not changed. And magically, the run time for the gttt3x3 example w
 update 1/1/2021:
 Implement a brute force version of the pure literal elimination and it can be seen that the number of iterations was reduced to 1/5.
 
+update 3/1/2021:
+Attempt the mobility initialization i.e. (2, 1) or (1, 2) instead of (1, 1). The number of iterations was halved, upload result_PNS.csv.
+
 
 

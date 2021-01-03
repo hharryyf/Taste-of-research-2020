@@ -1,0 +1,9 @@
+QBF_instance,version,time,result,iterations
+gttt_1_1_000111_3x3_b.qdimacs,PNS with stack and mobility init,90.26931428909302,SAT,1882
+gttt_1_1_000111_3x3_torus_b.qdimacs,PNS with stack and mobility init,33.38273787498474,SAT,650
+gttt_1_1_000111_3x3_b.qdimacs,PNS,475.6704833507538,SAT,3283
+gttt_1_1_000111_3x3_torus_b.qdimacs,PNS,127.96314716339111,SAT,1166
+gttt_1_1_000111_3x3_b.qdimacs,PNS with stack,65.25152444839478,SAT,3283
+gttt_1_1_000111_3x3_torus_b.qdimacs,PNS with stack,26.525075912475586,SAT,1166
+gttt_1_1_000111_3x3_b.qdimacs,PNS with mobility,273.69257712364197,SAT,1882
+gttt_1_1_000111_3x3_torus_b.qdimacs,PNS with mobility,75.09352159500122,SAT,650

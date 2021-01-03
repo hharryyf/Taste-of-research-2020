@@ -1,0 +1,4 @@
+using standard PNS with mobility intialization
+Iteration #0 pn = 1 dn= 2
+Iteration 650 pn = 0 dn= 100000000
+SAT 650

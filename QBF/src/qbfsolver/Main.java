@@ -16,15 +16,28 @@ public class Main {
             final Future<Object> f = service.submit(() -> {
             	QdimacFileReader rd = new QdimacFileReader();
         		CnfExpression fo = rd.read();
+        		CmdArgs arg = ResultGenerator.getCommandLine();
         		Solver s = new PNSv2();
         		if (args.length >= 1) {
-        			if (args[0].charAt(0) == 'B') {
+        			if (args[0].charAt(0) == '0') {
         				System.out.println("using brute force");
         				s = new BruteForce();
-        			} else if (args[0].charAt(0) == 'N') {
-        				System.out.println("using PNS return to the root");
+        			} else if (args[0].charAt(0) == '1') {
+        				System.out.println("using PNS return to the root with standard intialization");
         				s = new PNS();
+        				arg.setType(1);
+        			} else if (args[0].charAt(0) == '2') {
+        				System.out.println("using PNS with stack with standard intialization");
+        				s = new PNSv2();
+        				arg.setType(2);
+        			} else if (args[0].charAt(0) == '3') {
+        				System.out.println("using standard PNS with mobility intialization");
+        				s = new PNS();
+        				arg.setType(3);
         			}
+        		} else {
+        			System.out.println("using PNS with stack with mobility intialization");
+        			arg.setType(0);
         		}
         		boolean res = s.solve(fo);
         		if (s.getClass() == BruteForce.class) {
