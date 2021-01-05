@@ -75,6 +75,7 @@ public class PNSNode {
 		f2.set(f.peek().getVal(), 1);
 		f1.dropquantifier();
 		f2.dropquantifier();
+		// System.out.println("f1= " + f1);
 		f1.simplify();
 		f2.simplify();
 		PNSNode n1 = new PNSNode(f1);
@@ -116,7 +117,7 @@ public class PNSNode {
 		}
 		return ret;
 	}
-	
+	// check overflow INF
 	public void backpropagation() {
 		if (this.isTerminal() || !this.isExpanded()) return;
 		if (this.isMax()) {
@@ -136,8 +137,11 @@ public class PNSNode {
 		}
 		if (this.isTerminal()) {
 			this.child.clear();
-			if (this.isWin()) this.dn = 100000000;
-			if (this.isLost()) this.pn = 100000000;
+			if (this.isWin()) {
+				this.dn = 100000000;
+			} else {
+				this.pn = 100000000;
+			}
 		}
 	}
 }

@@ -26,5 +26,7 @@ Implement a brute force version of the pure literal elimination and it can be se
 update 3/1/2021:
 Attempt the mobility initialization i.e. (2, 1) or (1, 2) instead of (1, 1). The number of iterations was halved, upload result_PNS.csv.
 
-
+update 5/1/2021:
+Implement the data structure optimization version of unit propagation and pure literal elimination, the algorithm has an 
+armotized complexity of O(logn) when detecting unit clauses and pure literals.
 

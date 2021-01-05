@@ -2,7 +2,7 @@ import sys, os, getopt
 import csv
 import time
 cmd = "java -jar "
-progs = [["first_qbfv4.jar", "PNS with stack and mobility init"], ["first_qbfv4.jar 1", "PNS"], ["first_qbfv4.jar 2", "PNS with stack"], ["first_qbfv4.jar 3", "PNS with mobility"]]
+progs = [["first_qbfv5.jar", "PNS with stack and mobility init"], ["first_qbfv5.jar 1", "PNS"], ["first_qbfv5.jar 2", "PNS with stack"], ["first_qbfv5.jar 3", "PNS with mobility"]]
 args = ["gttt_1_1_000111_3x3_b.qdimacs", "gttt_1_1_000111_3x3_torus_b.qdimacs"]
 row_list = [["QBF_instance", "version", "time", "result", "iterations"]]
 
@@ -26,7 +26,7 @@ for prog in progs:
             lst.append(ls[1])        
         row_list.append(lst)
 
-with open('result_PNS.csv', 'w', newline='') as file:
+with open('result_PNS_dtopt.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerows(row_list)
 os.remove("out.txt")

@@ -10,7 +10,7 @@ public class QdimacFileReader {
 		String[] s = first.split("\\s+");
 		int n = Integer.valueOf(s[2]);
 		int m = Integer.valueOf(s[3]);
-		CnfExpression ret = new OptimizedFormula(n);
+		CnfExpression ret = new DataStructureOptimizedFormula(n);
 		int i;
 		while (m > 0) {
 			first = sc.nextLine();

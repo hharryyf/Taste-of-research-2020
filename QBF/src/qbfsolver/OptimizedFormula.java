@@ -106,10 +106,14 @@ public class OptimizedFormula implements CnfExpression {
 	
 	@Override
 	public void simplify() {
-		unit_propagation();
+		boolean t1 = true, t2 = true;
+		//System.out.println("in");
+		while (t1 || t2) {
+			t1 = unit_propagation();
+			t2 = pure_literal_elimination();
+		}
 		eliminate_useless_quantifiers();
-		pure_literal_elimination();
-		eliminate_useless_quantifiers();
+		//System.out.println("out");
 	}
 	
 	private void eliminate_useless_quantifiers() {
@@ -135,9 +139,9 @@ public class OptimizedFormula implements CnfExpression {
 	    }
 	}
 	
-	private void unit_propagation() {
+	private boolean unit_propagation() {
 		boolean find = true;
-		// System.out.println("enter");
+		boolean success = false;
 		while (find) {
 			find = false;
 			for (Disjunction d : cnf) {
@@ -157,16 +161,17 @@ public class OptimizedFormula implements CnfExpression {
 						this.set(var, 1);
 					}
 					find = true;
-					// System.out.println("find!");
+					success = true;
 					break;
 				}
 			}
 			
 		}
-		// System.out.println("exit");
+		
+		return success;
 	}
 	
-	private void pure_literal_elimination() {
+	private boolean pure_literal_elimination() {
 		if (evaluate() == -1) {
 			TreeMap<Integer, Integer> mp = new TreeMap<>();
 			for (Quantifier q : this.quantifiers.values()) {
@@ -201,7 +206,11 @@ public class OptimizedFormula implements CnfExpression {
 			for (Map.Entry<Integer, Integer> entry : mp.entrySet()) {
 				this.set(entry.getKey(), entry.getValue());
 			}
+			
+			return !mp.entrySet().isEmpty();
 		}
+		
+		return false;
 	}
 	
 	@Override
@@ -223,8 +232,6 @@ public class OptimizedFormula implements CnfExpression {
 		}
 		
 		ret.setSatisfied(this.satisfied);
-		//System.out.println("before copy " + this);
-		//System.out.println("after copy " + ret);
 		return ret;
 	}
 	

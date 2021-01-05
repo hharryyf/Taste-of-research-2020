@@ -13,7 +13,7 @@ public class Main {
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		
         try {
-            final Future<Object> f = service.submit(() -> {
+                final Future<Object> f = service.submit(() -> {
             	QdimacFileReader rd = new QdimacFileReader();
         		CnfExpression fo = rd.read();
         		CmdArgs arg = ResultGenerator.getCommandLine();
@@ -45,7 +45,9 @@ public class Main {
         			ret.setTruth(res);
         			ret.setIteration(0);
         		}
-                return ResultGenerator.getInstance();
+        		
+        		System.out.println(res);
+        		return ResultGenerator.getInstance();
             });
 
             System.out.println(f.get(900, TimeUnit.SECONDS));

@@ -14,6 +14,7 @@ public class PNSv2 implements Solver {
 	
 	@Override
 	public boolean solve(CnfExpression f) {
+		// System.out.println(f);
 		PNSNode root = new PNSNode(f), curr = root;
 		int i = 0;
 		Stack<CnfExpression> stk = new Stack<CnfExpression>();

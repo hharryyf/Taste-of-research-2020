@@ -78,6 +78,57 @@ public class Disjunction {
 		}
 	}
 	
+	public void set(int v, int val, DataStructureOptimizedFormula f, int id) {
+		if (st.contains(v)) {
+			if (val == 1) {
+				this.satisfied = true;
+				clear(f);
+			} else {
+				deletevar(v, f);
+			}
+		} 
+		
+		if (st.contains(-v)) {
+			if (val == 1) {
+				deletevar(-v, f);
+			} else {
+				this.satisfied = true;
+				clear(f);
+			}
+		}
+		
+		if (st.size() == 1) {
+			addUnitClause(st.iterator().next(), f);
+		}
+		
+		if (evaluate() == 0) {
+			f.setSatisfied(false);
+		} else if (evaluate() == 1) {
+			f.removecnf(id);
+		}
+	}
+	
+	private void deletevar(int v, DataStructureOptimizedFormula f) {
+		st.remove(v);
+		updatecounter(v, -1, f);
+	}
+	
+	private void clear(DataStructureOptimizedFormula f) {
+		for (Integer it : this.st) {
+			updatecounter(it, -1, f);
+		}
+		st.clear();
+	}
+	
+	
+	private void updatecounter(int v, int inc, DataStructureOptimizedFormula f) {
+		f.updateCounter(v, inc);
+	}
+	
+	private void addUnitClause(int v, DataStructureOptimizedFormula f) {
+		f.addUnitVariable(v);
+	}
+	
 	public int evaluate() {
 		if (this.satisfied) return 1;
 		if (this.st.isEmpty()) return 0;
@@ -97,6 +148,10 @@ public class Disjunction {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
+		if (this.satisfied) {
+			sb.append("true ");
+		}
+		
 		Iterator<Integer> it = st.iterator();
 	    while(it.hasNext()){
 	    	if (sb.length() == 0) {
