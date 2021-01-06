@@ -1,5 +1,6 @@
 package qbfsolver;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -243,4 +244,32 @@ public class OptimizedFormula implements CnfExpression {
 		return sb.toString();
 	}
 
+	@Override
+	public List<Quantifier> peek(int count, boolean type) {
+		count = Math.max(Math.min(count, 4), 1);
+		List<Quantifier> ret = new ArrayList<Quantifier>();
+		int i = 0;
+		Iterator <Quantifier> it = quantifiers.values().iterator();
+		while (i < count && it.hasNext()) {
+			Quantifier q = it.next();
+			if (q.isMax() == type) {
+				ret.add(q);
+			} else {
+				break;
+			}
+			i++;
+		}
+		return ret;
+	}
+	
+	@Override
+	public int maxSameQuantifier(boolean type) {
+		int count = 0;
+		Iterator <Quantifier> it = quantifiers.values().iterator();
+		while (count < 4 && it.hasNext()) {
+			if (it.next().isMax() != type) break;
+			count++;
+		}
+		return count;
+	}
 }

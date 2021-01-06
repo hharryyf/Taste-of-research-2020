@@ -1,5 +1,6 @@
 package qbfsolver;
 
+import java.util.ArrayList;
 // import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -104,38 +105,15 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 
 	@Override
 	public void set(int v, int val) {
-		//System.out.println("Formula " + this);
-		//System.out.println("set " + v + " to " + val);
 		if (v < 0) v = -v;
 		if (varTocnf.containsKey(v)) {
 			for (Integer it : varTocnf.get(v)) {
 				Disjunction d = cnf.get(it);
 				if (d != null) {
-					//System.out.println(d);
 					d.set(v, val, this, it);
-					//System.out.println("after set " + v + " to be " + val + " " + d.evaluate());
-					// System.out.println(d.getSize());
 				}
 			}
 		}
-		/*
-		List<Integer> list = new ArrayList<>();
-		for (Integer it : cnf.keySet()) {
-			list.add(it);
-		}
-		
-		for (Integer it : list) {
-			
-			int u = cnf.get(it).evaluate();
-			if (u == 0) {
-				//System.out.println(it);
-				// System.out.println(cnf);
-				this.setSatisfied(false);
-			} else if (u == 1) {
-				cnf.remove(it);
-			}
-		}
-		*/
 		varTocnf.remove(v);
 	}
 	
@@ -152,9 +130,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		
 		if (v < 0) {
 			varNeg.put(-v, varNeg.getOrDefault(-v, 0) + inc);
-			//varPos.put(-v, varPos.getOrDefault(-v, 0) + inc);
 		} else {
-			//varNeg.put(v, varNeg.getOrDefault(v, 0) + inc);
 			varPos.put(v, varPos.getOrDefault(v, 0) + inc);
 		}
 		
@@ -204,7 +180,6 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	    for (Integer q : this.varToquantifier.keySet()) {
 	    	if (!hasPos(q) && !hasNeg(q)) useless.add(q);
 	    }
-	    // System.out.println(useless);
 	    eliminate_useless_quantifiers();
 	}
 	
@@ -220,22 +195,17 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	}
 	
 	private void eliminate_useless_quantifiers() {
-		//System.out.println("bef " + this);
 		Iterator<Integer> it = useless.iterator();
 		while (it.hasNext()) {
 			dropvariable(Math.abs(it.next()));
 		}
 		useless.clear();
-		//System.out.println("aft " + this);
 	}
 	
 	private boolean unit_propagation() {
 		if (this.evaluate() != -1) return false;
 		if (unit.isEmpty()) return false;
-		//System.out.println("unit clause size " + unit.size());
 		int v = unit.pollFirst();
-		//System.out.println("unit clause " + v);
-		
 		if (varToquantifier.containsKey(Math.abs(v))) {
 			if (quantifiers.get(varToquantifier.get(Math.abs(v))).isMax()) {
 				if (v < 0) {
@@ -252,7 +222,6 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	
 	private boolean pure_literal_elimination() {
 		if (pure.isEmpty() || this.evaluate() != -1) return false;
-		// System.out.println(pure);
 		while (!pure.isEmpty()) {
 			int v = pure.pollFirst();
 			pure.remove(v);
@@ -260,7 +229,6 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 			if (hasPos(v) && hasNeg(v)) {
 				System.out.println("we found one " + v);
 				System.exit(0);
-			//	continue;
 			}
 			if (!varToquantifier.containsKey(v)) continue;
 			Quantifier q = this.quantifiers.get(this.varToquantifier.get(v));
@@ -293,7 +261,6 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 
 	@Override
 	public DataStructureOptimizedFormula duplicate() {
-		// System.out.println("before duplicate " + this);
 		DataStructureOptimizedFormula ret = new DataStructureOptimizedFormula(this.n); 
 		for (Quantifier q : this.quantifiers.values()) {
 			ret.addquantifier(q.duplicate());
@@ -315,5 +282,34 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		sb.append(this.cnf.toString());
 		sb.append(this.varTocnf);
 		return sb.toString();
+	}
+
+	@Override
+	public List<Quantifier> peek(int count, boolean type) {
+		count = Math.max(Math.min(count, 4), 1);
+		List<Quantifier> ret = new ArrayList<Quantifier>();
+		int i = 0;
+		Iterator <Quantifier> it = quantifiers.values().iterator();
+		while (i < count && it.hasNext()) {
+			Quantifier q = it.next();
+			if (q.isMax() == type) {
+				ret.add(q);
+			} else {
+				break;
+			}
+			i++;
+		}
+		return ret;
+	}
+	
+	@Override
+	public int maxSameQuantifier(boolean type) {
+		int count = 0;
+		Iterator <Quantifier> it = quantifiers.values().iterator();
+		while (count < 4 && it.hasNext()) {
+			if (it.next().isMax() != type) break;
+			count++;
+		}
+		return count;
 	}
 }

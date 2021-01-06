@@ -7,10 +7,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		final ExecutorService service = Executors.newSingleThreadExecutor();
+		
 		
         try {
                 final Future<Object> f = service.submit(() -> {
@@ -19,26 +21,36 @@ public class Main {
         		CmdArgs arg = ResultGenerator.getCommandLine();
         		Solver s = new PNSv2();
         		if (args.length >= 1) {
-        			if (args[0].charAt(0) == '0') {
+        			int val = Integer.valueOf(args[0]);
+        			if (val == 0) {
         				System.out.println("using brute force");
         				s = new BruteForce();
-        			} else if (args[0].charAt(0) == '1') {
+        			} else if (val == 1) {
         				System.out.println("using PNS return to the root with standard intialization");
         				s = new PNS();
         				arg.setType(1);
-        			} else if (args[0].charAt(0) == '2') {
+        			} else if (val == 2) {
         				System.out.println("using PNS with stack with standard intialization");
         				s = new PNSv2();
         				arg.setType(2);
-        			} else if (args[0].charAt(0) == '3') {
+        			} else if (val == 3) {
         				System.out.println("using standard PNS with mobility intialization");
         				s = new PNS();
         				arg.setType(3);
+        			} else {
+        				System.out.println("using PNS with stack with mobility intialization");
         			}
+        			
+        			if (args.length >= 2) {
+        				arg.setBf(Integer.valueOf(args[1]));
+        			}
+        			
         		} else {
         			System.out.println("using PNS with stack with mobility intialization");
         			arg.setType(0);
         		}
+        		
+        		System.out.println("Max Branching factor " + (1 << arg.getBf()));
         		boolean res = s.solve(fo);
         		if (s.getClass() == BruteForce.class) {
         			Result ret = ResultGenerator.getInstance();

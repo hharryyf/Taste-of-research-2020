@@ -1,9 +1,0 @@
-map variable -> integer : how many time variable occurs positive
-map variable -> integer: how many times negative
-
- (x | y | -z) x=1 (search tree step, set x=1),
-unit/pure
-
-
-map<freq, set<var>> 
-map<var, freq>

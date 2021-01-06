@@ -8,6 +8,9 @@ public class PNSNode {
 	private List<PNSNode> child;
 	private PNSNode parent;
 	private int pn, dn;
+	// number of variables 
+	// that is going to be expanded
+	private int varcount = 1;
 	public PNSNode(CnfExpression f) {
 		this.child = new ArrayList<PNSNode>();
 		if (f.evaluate() == 1) {
@@ -20,12 +23,13 @@ public class PNSNode {
 			this.pn = 1;
 			this.dn = 1;
 			this.isMax = f.peek().isMax();
+			this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBf());
 			if (ResultGenerator.getCommandLine().getType() == 0 || 
 				ResultGenerator.getCommandLine().getType() == 3) {
 				if (this.isMax) {
-					this.dn = 2;
+					this.dn = (1 << varcount);
 				} else {
-					this.pn = 2;
+					this.pn = (1 << varcount);
 				}
 			}
 		}
@@ -69,21 +73,41 @@ public class PNSNode {
 	}
 	
 	public void expansion(CnfExpression f) {
-		CnfExpression f1 = f.duplicate();
-		CnfExpression f2 = f.duplicate();
-		f1.set(f.peek().getVal(), 0);
-		f2.set(f.peek().getVal(), 1);
-		f1.dropquantifier();
-		f2.dropquantifier();
-		// System.out.println("f1= " + f1);
-		f1.simplify();
-		f2.simplify();
-		PNSNode n1 = new PNSNode(f1);
-		PNSNode n2 = new PNSNode(f2);
-		n1.setParent(this);
-		n2.setParent(this);
-		this.child.add(n1);
-		this.child.add(n2);
+		int i, j;
+		List<Quantifier> list = f.peek(varcount, f.peek().isMax());
+		for (i = 0 ; i < (1 << varcount); ++i) {
+			CnfExpression fp = f.duplicate();
+			for (j = 0 ; j < varcount; ++j) {
+				if ((i & (1 << j)) == 0) {
+					fp.set(list.get(j).getVal(), 0);
+				} else {
+					fp.set(list.get(j).getVal(), 1);
+				}
+				fp.dropquantifier();
+			}
+			
+			fp.simplify();
+			PNSNode nd = new PNSNode(fp);
+			nd.setParent(this);
+			this.child.add(nd);
+		}
+		/*
+			CnfExpression f1 = f.duplicate();
+			CnfExpression f2 = f.duplicate();
+			f1.set(f.peek().getVal(), 0);
+			f2.set(f.peek().getVal(), 1);
+			f1.dropquantifier();
+			f2.dropquantifier();
+			// System.out.println("f1= " + f1);
+			f1.simplify();
+			f2.simplify();
+			PNSNode n1 = new PNSNode(f1);
+			PNSNode n2 = new PNSNode(f2);
+			n1.setParent(this);
+			n2.setParent(this);
+			this.child.add(n1);
+			this.child.add(n2);
+		*/
 	}
 	
 	public PNSNode MPN(CnfExpression f) {
@@ -106,15 +130,16 @@ public class PNSNode {
 			}
 		}
 		
-		if (idx == 0) {
-			f.set(f.peek().getVal(), 0);
-			f.dropquantifier();
-			f.simplify();
-		} else if (idx == 1) {
-			f.set(f.peek().getVal(), 1);
-			f.dropquantifier();
-			f.simplify();
+		for (i = 0; i < varcount; ++i) {
+			if ((idx & (1 << i)) == 0) {
+				f.set(f.peek().getVal(), 0);
+				f.dropquantifier();
+			} else {
+				f.set(f.peek().getVal(), 1);
+				f.dropquantifier();
+			}
 		}
+		f.simplify();
 		return ret;
 	}
 	// check overflow INF

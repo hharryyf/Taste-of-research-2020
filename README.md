@@ -30,3 +30,5 @@ update 5/1/2021:
 Implement the data structure optimization version of unit propagation and pure literal elimination, the algorithm has an 
 armotized complexity of O(logn) when detecting unit clauses and pure literals.
 
+update 6/1/2021:
+Extend the PNSNode class that allows the branching factor to be more than 2, for performance consideration only 4, 8, 16 are allowed.
