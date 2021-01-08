@@ -1,0 +1,17 @@
+QBF_instance,max branching factor,version,time,result,iterations
+gttt_1_1_000111_3x3_b.qdimacs,2,mobility initialization with stack,21.81,SAT,1078.8
+gttt_1_1_000111_3x3_torus_b.qdimacs,2,mobility initialization with stack,14.02,SAT,714.8
+gttt_1_1_000111_3x3_b.qdimacs,4,mobility initialization with stack,28.48,SAT,1193.6
+gttt_1_1_000111_3x3_torus_b.qdimacs,4,mobility initialization with stack,16.68,SAT,729.0
+gttt_1_1_000111_3x3_b.qdimacs,8,mobility initialization with stack,29.76,SAT,1175.4
+gttt_1_1_000111_3x3_torus_b.qdimacs,8,mobility initialization with stack,9.63,SAT,406.6
+gttt_1_1_000111_3x3_b.qdimacs,16,mobility initialization with stack,50.88,SAT,1705.4
+gttt_1_1_000111_3x3_torus_b.qdimacs,16,mobility initialization with stack,33.18,SAT,1095.6
+gttt_1_1_000111_3x3_b.qdimacs,2,standard initialization with stack,29.85,SAT,2974.8
+gttt_1_1_000111_3x3_torus_b.qdimacs,2,standard initialization with stack,13.85,SAT,1191.8
+gttt_1_1_000111_3x3_b.qdimacs,4,standard initialization with stack,24.5,SAT,2005.4
+gttt_1_1_000111_3x3_torus_b.qdimacs,4,standard initialization with stack,19.57,SAT,1516.6
+gttt_1_1_000111_3x3_b.qdimacs,8,standard initialization with stack,24.57,SAT,1644.0
+gttt_1_1_000111_3x3_torus_b.qdimacs,8,standard initialization with stack,9.54,SAT,589.8
+gttt_1_1_000111_3x3_b.qdimacs,16,standard initialization with stack,46.02,SAT,2584.4
+gttt_1_1_000111_3x3_torus_b.qdimacs,16,standard initialization with stack,34.42,SAT,1657.6
