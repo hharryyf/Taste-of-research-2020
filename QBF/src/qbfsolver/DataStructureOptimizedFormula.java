@@ -21,6 +21,8 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	private TreeSet<Integer> useless;
 	private TreeSet<Integer> pure;
 	private boolean satisfied = true;
+	private int unicount = 0;
+	private int existcount = 0;
 	public DataStructureOptimizedFormula(int n) {
 		this.n = n;
 		this.quantifiers = new TreeMap<>();
@@ -32,6 +34,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		this.unit = new TreeSet<>();
 		this.pure = new TreeSet<>();
 		this.useless = new TreeSet<>();
+		this.unicount = this.existcount = 0;
 	}
 	
 	@Override
@@ -42,12 +45,19 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	private void dropvariable(int id) {
 		assert(id > 0);
 		int idx = this.varToquantifier.getOrDefault(id, -100000000);
+		Quantifier q = this.quantifiers.getOrDefault(idx, null);
+		if (q != null) {
+			if (q.isMax()) {
+				this.existcount--;
+			} else {
+				this.unicount--;
+			}
+		}
 		this.quantifiers.remove(idx);
 		this.varToquantifier.remove(id);
 		this.varPos.remove(id);
 		this.varNeg.remove(id);
 		this.varTocnf.remove(id);
-		// this.unit.remove(id);
 	}
 	
 	@Override
@@ -87,6 +97,11 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		int id = quantifiers.size() + 1;
 		quantifiers.put(id, q);
 		varToquantifier.put(q.getVal(), id);
+		if (q.isMax()) {
+			this.existcount++;
+		} else {
+			this.unicount++;
+		}
 	}
 
 	@Override
@@ -97,8 +112,14 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	@Override
 	public void dropquantifier() {
 		if (!quantifiers.isEmpty()) {
-			useless.remove(quantifiers.firstEntry().getValue().getVal());
-			varToquantifier.remove(quantifiers.firstEntry().getValue().getVal());
+			Quantifier q = quantifiers.firstEntry().getValue();
+			useless.remove(q.getVal());
+			varToquantifier.remove(q.getVal());
+			if (q.isMax()) {
+				this.existcount--;
+			} else {
+				this.unicount--;
+			}
 			quantifiers.remove(quantifiers.firstKey());
 		}
 	}
@@ -181,6 +202,14 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	    	if (!hasPos(q) && !hasNeg(q)) useless.add(q);
 	    }
 	    eliminate_useless_quantifiers();
+	    this.existcount = this.unicount = 0;
+	    for (Quantifier q : this.quantifiers.values()) {
+	    	if (q.isMax()) {
+	    		this.existcount++;
+	    	} else {
+	    		this.unicount++;
+	    	}
+	    }
 	}
 	
 	@Override
@@ -203,7 +232,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	}
 	
 	private boolean unit_propagation() {
-		if (this.evaluate() != -1) return false;
+		if (this.terminal() != -1) return false;
 		if (unit.isEmpty()) return false;
 		int v = unit.pollFirst();
 		if (varToquantifier.containsKey(Math.abs(v))) {
@@ -221,7 +250,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	}
 	
 	private boolean pure_literal_elimination() {
-		if (pure.isEmpty() || this.evaluate() != -1) return false;
+		if (pure.isEmpty() || this.terminal() != -1) return false;
 		while (!pure.isEmpty()) {
 			int v = pure.pollFirst();
 			pure.remove(v);
@@ -252,10 +281,21 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		return true;
 	}
 	
-	@Override
-	public int evaluate() {
+	public int terminal() {
 		if (!this.satisfied) return 0;
 		if (this.quantifiers.isEmpty()) return 1;
+		return -1;
+	}
+	
+	@Override
+	public int evaluate() {
+		int ret = this.terminal();
+		if (ret != -1) return ret;
+		if (this.unicount == 0) {
+			System.out.println("last quantifier block! number of useful quantifiers left " + this.existcount);
+		} else if (this.existcount == 0) {
+			return 0;
+		}
 		return -1;
 	}
 
@@ -277,10 +317,10 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("evaluation= " + evaluate());
+		sb.append("evaluation= " + terminal());
 		sb.append(this.quantifiers.values().toString() + " ");
 		sb.append(this.cnf.toString());
-		sb.append(this.varTocnf);
+		sb.append(this.varTocnf.toString());
 		return sb.toString();
 	}
 
