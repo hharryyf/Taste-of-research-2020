@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.SolverFactory;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.TimeoutException;
 
 public class DataStructureOptimizedFormula implements CnfExpression {
 	private int n;
@@ -292,7 +297,30 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		int ret = this.terminal();
 		if (ret != -1) return ret;
 		if (this.unicount == 0) {
-			System.out.println("last quantifier block! number of useful quantifiers left " + this.existcount);
+			// System.out.println("last quantifier block! number of useful quantifiers left " + this.existcount);
+			ISolver s = SolverFactory.newDefault ();
+			s.setTimeout (900);
+			s.newVar(this.n + 1);
+			s.setExpectedNumberOfClauses(this.cnf.size());
+			for (Disjunction d : this.cnf.values()) {
+				List<Integer> list = d.getVariable();
+				int [] clause = list.stream().mapToInt(Integer::intValue).toArray();
+				try {
+					s.addClause(new VecInt(clause));
+				} catch (ContradictionException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			try {
+				boolean curr = s.isSatisfiable();
+				if (curr) return 1;
+				return 0;
+			} catch (TimeoutException e) {
+				e.printStackTrace();
+			}
+			return -1;
+			
 		} else if (this.existcount == 0) {
 			return 0;
 		}

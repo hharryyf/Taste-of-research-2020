@@ -7,13 +7,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		final ExecutorService service = Executors.newSingleThreadExecutor();
-		
-		
         try {
                 final Future<Object> f = service.submit(() -> {
             	QdimacFileReader rd = new QdimacFileReader();
