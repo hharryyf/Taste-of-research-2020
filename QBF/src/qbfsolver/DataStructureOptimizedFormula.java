@@ -16,11 +16,17 @@ import org.sat4j.specs.TimeoutException;
 
 public class DataStructureOptimizedFormula implements CnfExpression {
 	private int n;
+	// quantifier add time -> quantifier
 	private TreeMap<Integer, Quantifier> quantifiers;
+	// variable ->
 	private TreeMap<Integer, Integer> varToquantifier;
+	// integer arrays
 	private TreeMap<Integer, Integer> varPos;
 	private TreeMap<Integer, Integer> varNeg;
+	// disjunction id -> disjunction
 	private TreeMap<Integer, Disjunction> cnf;
+	// variable id -> all disjunction id which this variable occurs
+	
 	private TreeMap<Integer, TreeSet<Integer>> varTocnf; 
 	private TreeSet<Integer> unit;
 	private TreeSet<Integer> useless;
@@ -130,13 +136,14 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	}
 
 	@Override
-	public void set(int v, int val) {
-		if (v < 0) v = -v;
+	public void set(int w) {
+		// pass in the literal that is satisfied w, recompute v based on abs
+		int v = Math.abs(w);
 		if (varTocnf.containsKey(v)) {
 			for (Integer it : varTocnf.get(v)) {
 				Disjunction d = cnf.get(it);
 				if (d != null) {
-					d.set(v, val, this, it);
+					d.set(w, this, it);
 				}
 			}
 		}
@@ -242,11 +249,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		int v = unit.pollFirst();
 		if (varToquantifier.containsKey(Math.abs(v))) {
 			if (quantifiers.get(varToquantifier.get(Math.abs(v))).isMax()) {
-				if (v < 0) {
-					this.set(-v, 0);
-				} else {
-					this.set(v, 1);
-				}
+				this.set(v);
 			} else {
 				this.setSatisfied(false);
 			}
@@ -269,15 +272,15 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 			if (q == null) continue;
 			if (hasPos(v)) {
 				if (q.isMax()) {
-					this.set(v, 1);
+					this.set(v);
 				} else {
-					this.set(v, 0);
+					this.set(-v);
 				}
 			} else if (hasNeg(v)) {
 				if (q.isMax()) {
-					this.set(v, 0);
+					this.set(-v);
 				} else {
-					this.set(v, 1);
+					this.set(v);
 				}
 			}
 		}

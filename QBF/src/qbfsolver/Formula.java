@@ -53,9 +53,13 @@ public class Formula implements CnfExpression {
 	}
 	
 	@Override
-	public void set(int v, int val) {
+	public void set(int v) {
 		for (Disjunction c : this.cnf) {
-			c.set(v, val);
+			if (v > 0) {
+				c.set(v, 1);
+			} else {
+				c.set(-v, 0);
+			}
 		}
 		
 		 ListIterator<Disjunction> iter = cnf.listIterator();

@@ -77,34 +77,32 @@ public class Disjunction {
 			}
 		}
 	}
-	
-	public void set(int v, int val, DataStructureOptimizedFormula f, int id) {
-		if (st.contains(v)) {
-			if (val == 1) {
-				this.satisfied = true;
-				clear(f);
-			} else {
-				deletevar(v, f);
-			}
+	/**
+	 * 
+	 * @param v varible_id always positive
+	 * @param val boolean value, 0 or 1
+	 * @param f, the formula which this clause is set
+	 * @param id, clause id in the formula f
+	 */
+	public void set(int w, DataStructureOptimizedFormula f, int id) {
+		// st, set of literals
+		if (st.contains(w)) {
+			this.satisfied = true;
+			clear(f);
+			f.removecnf(id);
 		} 
 		
-		if (st.contains(-v)) {
-			if (val == 1) {
-				deletevar(-v, f);
-			} else {
-				this.satisfied = true;
-				clear(f);
+		if (st.contains(-w)) {
+			deletevar(-w, f);
+			if (st.size() == 1) {
+				addUnitClause(st.iterator().next(), f);
 			}
-		}
-		
-		if (st.size() == 1) {
-			addUnitClause(st.iterator().next(), f);
-		}
-		
-		if (evaluate() == 0) {
-			f.setSatisfied(false);
-		} else if (evaluate() == 1) {
-			f.removecnf(id);
+			
+			assert(evaluate() != 1);
+			// check it later
+			if (evaluate() == 0) {
+				f.setSatisfied(false);
+			}
 		}
 	}
 	

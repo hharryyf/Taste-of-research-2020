@@ -79,9 +79,9 @@ public class PNSNode {
 			CnfExpression fp = f.duplicate();
 			for (j = 0 ; j < varcount; ++j) {
 				if ((i & (1 << j)) == 0) {
-					fp.set(list.get(j).getVal(), 0);
+					fp.set(-list.get(j).getVal());
 				} else {
-					fp.set(list.get(j).getVal(), 1);
+					fp.set(list.get(j).getVal());
 				}
 				fp.dropquantifier();
 			}
@@ -91,23 +91,6 @@ public class PNSNode {
 			nd.setParent(this);
 			this.child.add(nd);
 		}
-		/*
-			CnfExpression f1 = f.duplicate();
-			CnfExpression f2 = f.duplicate();
-			f1.set(f.peek().getVal(), 0);
-			f2.set(f.peek().getVal(), 1);
-			f1.dropquantifier();
-			f2.dropquantifier();
-			// System.out.println("f1= " + f1);
-			f1.simplify();
-			f2.simplify();
-			PNSNode n1 = new PNSNode(f1);
-			PNSNode n2 = new PNSNode(f2);
-			n1.setParent(this);
-			n2.setParent(this);
-			this.child.add(n1);
-			this.child.add(n2);
-		*/
 	}
 	
 	public PNSNode MPN(CnfExpression f) {
@@ -132,12 +115,11 @@ public class PNSNode {
 		
 		for (i = 0; i < varcount; ++i) {
 			if ((idx & (1 << i)) == 0) {
-				f.set(f.peek().getVal(), 0);
-				f.dropquantifier();
+				f.set(-f.peek().getVal());
 			} else {
-				f.set(f.peek().getVal(), 1);
-				f.dropquantifier();
+				f.set(f.peek().getVal());	
 			}
+			f.dropquantifier();
 		}
 		f.simplify();
 		return ret;

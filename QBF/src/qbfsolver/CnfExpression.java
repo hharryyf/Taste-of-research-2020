@@ -10,7 +10,11 @@ public interface CnfExpression {
 	public int maxSameQuantifier(boolean type);
 	public List<Quantifier> peek(int count, boolean type);
 	public void dropquantifier();
-	public void set(int v, int val);
+	/**
+	 * Let v to be true
+	 * @param v, positive means |v| is true, negative means |v| is false
+	 */
+	public void set(int v);
 	public void setSatisfied(boolean val);
 	public void normalize();
 	public void simplify();

@@ -56,9 +56,13 @@ public class OptimizedFormula implements CnfExpression {
 	}
 
 	@Override
-	public void set(int v, int val) {
+	public void set(int v) {
 		for (Disjunction d : cnf) {
-			d.set(v, val);
+			if (v > 0) {
+				d.set(v, 1);
+			} else {
+				d.set(-v, 0);
+			}
 		}
 		
 		ListIterator<Disjunction> iter = cnf.listIterator();
@@ -156,11 +160,7 @@ public class OptimizedFormula implements CnfExpression {
 						break;
 					}
 					
-					if (var < 0) {
-						this.set(-var, 0);
-					} else {
-						this.set(var, 1);
-					}
+					this.set(var);
 					find = true;
 					success = true;
 					break;
@@ -205,7 +205,11 @@ public class OptimizedFormula implements CnfExpression {
 			}
 			
 			for (Map.Entry<Integer, Integer> entry : mp.entrySet()) {
-				this.set(entry.getKey(), entry.getValue());
+				if (entry.getValue() == 1) {
+					this.set(entry.getKey());
+				} else {
+					this.set(-entry.getKey());
+				}
 			}
 			
 			return !mp.entrySet().isEmpty();

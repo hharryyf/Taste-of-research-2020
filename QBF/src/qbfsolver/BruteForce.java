@@ -13,10 +13,12 @@ public class BruteForce implements Solver {
 		CnfExpression f0 = f.duplicate();
 		CnfExpression f1 = f.duplicate();
 		Quantifier q = f.peek();
-		f1.set(q.getVal(), 1);
-		f0.set(q.getVal(), 0);
+		f1.set(q.getVal());
+		f0.set(-q.getVal());
 		f0.dropquantifier();
 		f1.dropquantifier();
+		f0.simplify();
+		f1.simplify();
 		if (q.isMax()) {
 			return solve(f0) || solve(f1);
 		}
