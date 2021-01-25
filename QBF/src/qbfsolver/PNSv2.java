@@ -16,7 +16,8 @@ public class PNSv2 implements Solver {
 	public boolean solve(CnfExpression f) {
 		// System.out.println(f);
 		PNSNode root = new PNSNode(f), curr = root;
-		int i = 0;
+		int i = 0, tolvisited = 0;
+		// int mxd = 0;
 		Stack<CnfExpression> stk = new Stack<CnfExpression>();
 		while (i <= this.maxT && !root.isWin() && !root.isLost()) {
 			if (i % 1000 == 0) {
@@ -36,21 +37,24 @@ public class PNSv2 implements Solver {
 				if (it == null) break;
 				stk.push(fp.duplicate());
 				curr = it;
+				tolvisited++;
 			}
-			
 			curr.expansion(fp);
+			//mxd = Math.max(mxd, stk.size() + 1);
 			while (curr != null) {
 				int pn = curr.getPn(), dn = curr.getDn();
 				curr.backpropagation();
 				if (pn == curr.getPn() && dn == curr.getDn()) break;
 				curr = curr.getParent();
 				stk.pop();
+				tolvisited++;
 			}
 			
 			i++;
 		}
 		
 		Result res = ResultGenerator.getInstance();
+		System.out.println("total visited nodes= " + tolvisited);
 		System.out.println("Iteration " + i + " pn = " + root.getPn() + " dn= " + root.getDn());
 		res.setIteration(i);
 		if (root.isLost()) {

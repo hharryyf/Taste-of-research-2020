@@ -13,6 +13,8 @@ public class PNSNode {
 	private int varcount = 1;
 	public PNSNode(CnfExpression f) {
 		this.child = new ArrayList<PNSNode>();
+		Result res = ResultGenerator.getInstance();
+		res.setNode();
 		if (f.evaluate() == 1) {
 			this.pn = 0;
 			this.dn = 100000000;
@@ -23,7 +25,11 @@ public class PNSNode {
 			this.pn = 1;
 			this.dn = 1;
 			this.isMax = f.peek().isMax();
-			this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBf());
+			if (this.isMax) {
+				this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBfE());
+			} else {
+				this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBfU());
+			}
 			if (ResultGenerator.getCommandLine().getType() == 0 || 
 				ResultGenerator.getCommandLine().getType() == 3) {
 				if (this.isMax) {

@@ -33,7 +33,7 @@ public class QdimacFileReader {
 					}
 				}
 			} else {
-				Disjunction c = new Disjunction();
+				Disjunction c = new DisjunctionDefault();
 				for (i = 0 ; i < s.length; ++i) {
 					if (Integer.valueOf(s[i]) != 0) {
 						c.add(Integer.valueOf(s[i]));

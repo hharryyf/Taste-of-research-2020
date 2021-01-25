@@ -3,9 +3,11 @@ package qbfsolver;
 public class Result {
 	private String truth;
 	private int iterations;
+	private int nodecount;
 	public Result() {
 		this.truth = new String("UNSOLVED");
 		this.iterations = 1000000;
+		this.nodecount = 0;
 	}
 	
 	public void setIteration(int it) {
@@ -20,7 +22,11 @@ public class Result {
 		}
 	}
 	
+	public void setNode() {
+		this.nodecount++;
+	}
+	
 	public String toString() {
-		return truth + " " + iterations;
+		return truth + " " + iterations + " " + nodecount;
 	}
 }

@@ -87,7 +87,7 @@ public class OptimizedFormula implements CnfExpression {
 	public void normalize() {
 		Set<Integer> s = new HashSet<Integer>();
 		for (Disjunction c : this.cnf) {
-			List<Integer> list = c.getSt();
+			List<Integer> list = c.getLiteral();
 			for (Integer it : list) {
 				s.add(Math.abs(it));
 			}
@@ -129,7 +129,7 @@ public class OptimizedFormula implements CnfExpression {
 		}
 		
 		for (Disjunction c : this.cnf) {
-			List<Integer> list = c.getSt();
+			List<Integer> list = c.getLiteral();
 			for (Integer it : list) {
 				s.remove(Math.abs(it));
 			}

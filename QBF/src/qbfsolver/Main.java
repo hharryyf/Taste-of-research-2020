@@ -38,8 +38,9 @@ public class Main {
         				System.out.println("using PNS with stack with mobility intialization");
         			}
         			
-        			if (args.length >= 2) {
-        				arg.setBf(Integer.valueOf(args[1]));
+        			if (args.length >= 3) {
+        				arg.setBfE(Integer.valueOf(args[1]));
+        				arg.setBfU(Integer.valueOf(args[2]));
         			}
         			
         		} else {
@@ -47,7 +48,8 @@ public class Main {
         			arg.setType(0);
         		}
         		
-        		System.out.println("Max Branching factor " + (1 << arg.getBf()));
+        		System.out.println("Max Branching factor Existential " + (1 << arg.getBfE()));
+        		System.out.println("Max Branching factor Universal " + (1 << arg.getBfU()));
         		boolean res = s.solve(fo);
         		if (s.getClass() == BruteForce.class) {
         			Result ret = ResultGenerator.getInstance();
