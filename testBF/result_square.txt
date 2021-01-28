@@ -1,3 +1,4 @@
+-- (#E, #U)
 program: bfv2.jar 4 1 1
 Average time=  40.07  average iteration=  1342.0
 program: bfv2.jar 4 1 2

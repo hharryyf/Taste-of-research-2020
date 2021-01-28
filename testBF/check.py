@@ -5,8 +5,8 @@ import random
 li = []
 for i in range(0, 10):
     v = random.randint(0, 1000)
-    li.append(str(v) + "gttt_1_1_000111_3x3_b.qdimacs")
-    os.system("cat gttt_1_1_000111_3x3_b.qdimacs " + " | bule_win64 shuffle --seed=" + str(v) + " --polarity > " + str(v) + "gttt_1_1_000111_3x3_b.qdimacs")
+    li.append(str(v) + "gttt_1_1_000111_3x3_torus_b.qdimacs")
+    os.system("cat gttt_1_1_000111_3x3_torus_b.qdimacs " + " | bule_win64 shuffle --seed=" + str(v) + " --polarity > " + str(v) + "gttt_1_1_000111_3x3_torus_b.qdimacs")
 cmd = "java -jar "
 progs = ["bfv2.jar 4 1 1", "bfv2.jar 4 1 2", "bfv2.jar 4 1 3", "bfv2.jar 4 1 4", \
         "bfv2.jar 4 2 1", "bfv2.jar 4 2 2", "bfv2.jar 4 2 3", "bfv2.jar 4 2 4", \
