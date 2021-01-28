@@ -1,0 +1,35 @@
+program: bfv2.jar 4 1 1
+Average time=  40.07  average iteration=  1342.0
+program: bfv2.jar 4 1 2
+Average time=  50.64  average iteration=  1418.6
+program: bfv2.jar 4 1 3
+Average time=  52.66  average iteration=  1665.4
+program: bfv2.jar 4 1 4
+Average time=  99.40  average iteration=  3290.6
+-------------------------------------------------------
+program: bfv2.jar 4 2 1
+Average time=  27.89  average iteration=  1336.9
+program: bfv2.jar 4 2 2
+Average time=  33.26  average iteration=  1370.9
+program: bfv2.jar 4 2 3
+Average time=  33.87  average iteration=  1458.8
+program: bfv2.jar 4 2 4
+Average time=  55.91  average iteration=  2096.2
+-------------------------------------------------------
+program: bfv2.jar 4 3 1
+Average time=  22.84  average iteration=  1125.7
+program: bfv2.jar 4 3 2
+Average time=  22.72  average iteration=  991.7
+program: bfv2.jar 4 3 3
+Average time=  27.87  average iteration=  1115.0
+program: bfv2.jar 4 3 4
+Average time=  48.04  average iteration=  1721.8
+-------------------------------------------------------
+program: bfv2.jar 4 4 1
+Average time=  25.98  average iteration=  1287.2
+program: bfv2.jar 4 4 2
+Average time=  26.04  average iteration=  1070.7
+program: bfv2.jar 4 4 3
+Average time=  36.01  average iteration=  1459.8
+program: bfv2.jar 4 4 4
+Average time=  44.77  average iteration=  1627.7
