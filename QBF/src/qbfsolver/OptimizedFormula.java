@@ -46,7 +46,12 @@ public class OptimizedFormula implements CnfExpression {
 		
 		return quantifiers.firstEntry().getValue();
 	}
-
+	
+	@Override
+	public boolean hasQuantifier() {
+		return !this.quantifiers.isEmpty();
+	}
+	
 	@Override
 	public void dropquantifier() {
 		if (!quantifiers.isEmpty()) {

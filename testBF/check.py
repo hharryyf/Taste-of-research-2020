@@ -5,13 +5,13 @@ import random
 li = []
 for i in range(0, 10):
     v = random.randint(0, 1000)
-    li.append(str(v) + "gttt_1_1_000111_3x3_torus_b.qdimacs")
-    os.system("cat gttt_1_1_000111_3x3_torus_b.qdimacs " + " | bule_win64 shuffle --seed=" + str(v) + " --polarity > " + str(v) + "gttt_1_1_000111_3x3_torus_b.qdimacs")
+    li.append(str(v) + "gttt_1_1_000111_3x3_b.qdimacs")
+    os.system("cat gttt_1_1_000111_3x3_b.qdimacs " + " | bule_win64 shuffle --seed=" + str(v) + " --polarity > " + str(v) + "gttt_1_1_000111_3x3_b.qdimacs")
 cmd = "java -jar "
-progs = ["bfv2.jar 4 1 1", "bfv2.jar 4 1 2", "bfv2.jar 4 1 3", "bfv2.jar 4 1 4", \
-        "bfv2.jar 4 2 1", "bfv2.jar 4 2 2", "bfv2.jar 4 2 3", "bfv2.jar 4 2 4", \
-        "bfv2.jar 4 3 1", "bfv2.jar 4 3 2", "bfv2.jar 4 3 3", "bfv2.jar 4 3 4", \
-        "bfv2.jar 4 4 1", "bfv2.jar 4 4 2", "bfv2.jar 4 4 3", "bfv2.jar 4 4 4"]
+progs = ["bfv2.jar 2 1 1", "bfv2.jar 2 1 2", "bfv2.jar 2 1 3", "bfv2.jar 2 1 4", \
+        "bfv2.jar 2 2 1", "bfv2.jar 2 2 2", "bfv2.jar 2 2 3", "bfv2.jar 2 2 4", \
+        "bfv2.jar 2 3 1", "bfv2.jar 2 3 2", "bfv2.jar 2 3 3", "bfv2.jar 2 3 4", \
+        "bfv2.jar 2 4 1", "bfv2.jar 2 4 2", "bfv2.jar 2 4 3", "bfv2.jar 2 4 4"]
 for prog in progs:
     tol = 0;
     iter = 0

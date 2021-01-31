@@ -2,7 +2,7 @@ package qbfsolver;
 
 public class CmdArgs {
 	private int type = 0;
-	private int bfU = 1;
+	private int bfU = 2;
 	private int bfE = 3;
 	public CmdArgs() {
 		

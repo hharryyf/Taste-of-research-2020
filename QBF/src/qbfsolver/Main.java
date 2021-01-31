@@ -16,7 +16,7 @@ public class Main {
             	QdimacFileReader rd = new QdimacFileReader();
         		CnfExpression fo = rd.read();
         		CmdArgs arg = ResultGenerator.getCommandLine();
-        		Solver s = new PNSv2();
+        		Solver s = new DeepPNS();
         		if (args.length >= 1) {
         			int val = Integer.valueOf(args[0]);
         			if (val == 0) {
@@ -34,8 +34,13 @@ public class Main {
         				System.out.println("using standard PNS with mobility intialization");
         				s = new PNS();
         				arg.setType(3);
-        			} else {
+        			} else if (val == 4) {
+        				s = new PNSv2();
+        				arg.setType(3);
         				System.out.println("using PNS with stack with mobility intialization");
+        			} else {
+        				arg.setType(3);
+        				System.out.println("using DeepPNS with stack with mobility intialization");
         			}
         			
         			if (args.length >= 3) {

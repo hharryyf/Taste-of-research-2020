@@ -114,7 +114,12 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 			this.unicount++;
 		}
 	}
-
+	
+	@Override
+	public boolean hasQuantifier() {
+		return !quantifiers.isEmpty();
+	}
+	
 	@Override
 	public Quantifier peek() {
 		return quantifiers.firstEntry().getValue();

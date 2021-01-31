@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface CnfExpression {
 	public int getn();
+	public boolean hasQuantifier();
 	public void addcnf(Disjunction c);
 	public void addquantifier(Quantifier q);
 	public Quantifier peek();

@@ -42,6 +42,37 @@ public class PNSNode {
 		this.parent = null;
 	}
 	
+	public PNSNode(CnfExpression f, int varcount) {
+		this.child = new ArrayList<PNSNode>();
+		Result res = ResultGenerator.getInstance();
+		res.setNode();
+		if (f.evaluate() == 1) {
+			this.pn = 0;
+			this.dn = 100000000;
+		} else if (f.evaluate() == 0) {
+			this.pn = 100000000;
+			this.dn = 0;
+		} else {
+			this.pn = 1;
+			this.dn = 1;
+			this.isMax = f.peek().isMax();
+			if (this.isMax) {
+				this.varcount = Math.min(f.maxSameQuantifier(this.isMax), varcount);
+			} else {
+				this.varcount = Math.min(f.maxSameQuantifier(this.isMax), varcount);
+			}
+			if (ResultGenerator.getCommandLine().getType() == 0 || 
+				ResultGenerator.getCommandLine().getType() == 3) {
+				if (this.isMax) {
+					this.dn = (1 << varcount);
+				} else {
+					this.pn = (1 << varcount);
+				}
+			}
+		}
+		this.parent = null;
+	}
+	
 	public boolean isMax() {
 		return this.isMax;
 	}
