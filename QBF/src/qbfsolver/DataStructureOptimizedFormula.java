@@ -1,6 +1,7 @@
 package qbfsolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 // import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,7 +27,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	// disjunction id -> disjunction
 	private TreeMap<Integer, Disjunction> cnf;
 	// variable id -> all disjunction id which this variable occurs
-	
+	private TreeMap<Integer, Integer> varBin;
 	private TreeMap<Integer, TreeSet<Integer>> varTocnf; 
 	private TreeSet<Integer> unit;
 	private TreeSet<Integer> useless;
@@ -46,6 +47,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		this.pure = new TreeSet<>();
 		this.useless = new TreeSet<>();
 		this.unicount = this.existcount = 0;
+		this.varBin = new TreeMap<>();
 	}
 	
 	@Override
@@ -54,7 +56,10 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	}
 	
 	private void dropvariable(int id) {
-		assert(id > 0);
+		if (id < 0) {
+			System.err.println("bad! negative variable");
+			System.exit(0);
+		}
 		int idx = this.varToquantifier.getOrDefault(id, -100000000);
 		Quantifier q = this.quantifiers.getOrDefault(idx, null);
 		if (q != null) {
@@ -64,6 +69,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 				this.unicount--;
 			}
 		}
+		this.varBin.remove(id);
 		this.quantifiers.remove(idx);
 		this.varToquantifier.remove(id);
 		this.varPos.remove(id);
@@ -88,6 +94,9 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		
 		if (list.size() == 1) {
 			unit.add(list.get(0));
+		} else if (list.size() == 2) {
+			varBin.put(Math.abs(list.get(0)), this.getBinfreq(Math.abs(list.get(0))) + 1);
+			varBin.put(Math.abs(list.get(1)), this.getBinfreq(Math.abs(list.get(1))) + 1);
 		}
 	}
 	
@@ -128,7 +137,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	@Override
 	public void dropquantifier() {
 		if (!quantifiers.isEmpty()) {
-			Quantifier q = quantifiers.firstEntry().getValue();
+			/*Quantifier q = quantifiers.firstEntry().getValue();
 			useless.remove(q.getVal());
 			varToquantifier.remove(q.getVal());
 			if (q.isMax()) {
@@ -136,10 +145,78 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 			} else {
 				this.unicount--;
 			}
-			quantifiers.remove(quantifiers.firstKey());
+			quantifiers.remove(quantifiers.firstKey());*/
+			this.dropvariable(quantifiers.firstEntry().getValue().getVal());
 		}
 	}
-
+	
+	@Override
+	public void dropquantifier(int v) {
+		if (v < 0) v = -v;
+		this.dropvariable(v);
+	}
+	
+	@Override
+	public int getFreq(int id) {
+		return getNegfreq(id) + getPosfreq(id);
+	}
+	
+	@Override
+	public int getNegfreq(int id) {
+		return varNeg.getOrDefault(id, 0);
+	}
+	
+	@Override
+	public int getPosfreq(int id) {
+		return varPos.getOrDefault(id, 0);
+	}
+	
+	public int getBinfreq(int id) {
+		int ret = varBin.getOrDefault(id, 0);
+		if (ret < 0) {
+			System.err.println("frequency invalid!");
+			System.exit(0);
+		}
+		return ret;
+	}
+	
+	public void updatebinary(int v, int inc) {
+		if (v < 0) v = -v;
+		varBin.put(v, this.getBinfreq(v) + inc);
+	}
+	
+	public int eval(int v) {
+		// System.out.println("evaluate " + v + " " + getBinfreq(v));
+		return getBinfreq(v) * 2 + getFreq(v);
+	}
+	
+	@Override
+	public List<Quantifier> peekfreq(int count, boolean type) {
+		ArrayList<Pair<Integer, Quantifier>> mp = new ArrayList<>();
+		Iterator <Quantifier> it = quantifiers.values().iterator();
+		while (it.hasNext()) {
+			Quantifier q = it.next();
+			if (q.isMax() == type) {
+				mp.add(new Pair<Integer, Quantifier>(eval(q.getVal()), q));
+			} else {
+				break;
+			}
+		}
+		
+		Collections.sort(mp);
+		count = Math.max(Math.min(count, 4), 1);
+		List<Quantifier> ret = new ArrayList<Quantifier>();
+		int i = 0, j = mp.size() - 1;
+		while (i < count && j >= 0) {
+			ret.add(mp.get(j).getSecond());
+			i++;
+			j--;
+		}
+		
+		// System.out.println("freqbin " + mp);
+		return ret;
+	}
+	
 	@Override
 	public void set(int w) {
 		// pass in the literal that is satisfied w, recompute v based on abs

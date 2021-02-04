@@ -2,14 +2,23 @@ package qbfsolver;
 
 public class CmdArgs {
 	private int type = 0;
-	private int bfU = 2;
+	private int bfU = 1;
 	private int bfE = 3;
+	private double R = 0.25;
 	public CmdArgs() {
 		
 	}
 	
 	public CmdArgs(int type) {
 		this.type = type;
+	}
+	
+	public double getR() {
+		return this.R;
+	}
+	
+	public void setR(double R) {
+		this.R = R;
 	}
 	
 	public int getBfE() {

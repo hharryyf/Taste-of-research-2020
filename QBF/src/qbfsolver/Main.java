@@ -46,15 +46,17 @@ public class Main {
         			if (args.length >= 3) {
         				arg.setBfE(Integer.valueOf(args[1]));
         				arg.setBfU(Integer.valueOf(args[2]));
+        				arg.setR(Double.valueOf(args[3]));
         			}
         			
         		} else {
-        			System.out.println("using PNS with stack with mobility intialization");
+        			System.out.println("using DeepPNS with stack with mobility intialization");
         			arg.setType(0);
         		}
         		
         		System.out.println("Max Branching factor Existential " + (1 << arg.getBfE()));
         		System.out.println("Max Branching factor Universal " + (1 << arg.getBfU()));
+        		System.out.println("R value " + arg.getR());
         		boolean res = s.solve(fo);
         		if (s.getClass() == BruteForce.class) {
         			Result ret = ResultGenerator.getInstance();
@@ -66,7 +68,7 @@ public class Main {
         		return ResultGenerator.getInstance();
             });
 
-            System.out.println(f.get(900, TimeUnit.SECONDS));
+            System.out.println(f.get(9000, TimeUnit.SECONDS));
             
         } catch (final TimeoutException e) {
             System.out.println("UNSOLVED NA");

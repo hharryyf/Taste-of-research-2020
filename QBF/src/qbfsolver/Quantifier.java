@@ -1,6 +1,6 @@
 package qbfsolver;
 
-public class Quantifier {
+public class Quantifier implements Comparable<Quantifier> {
 	private boolean isexist;
 	private int val;
 	public Quantifier(boolean isexist, int val) {
@@ -27,5 +27,10 @@ public class Quantifier {
 		} else {
 			return "A " + val;
 		}
+	}
+
+	@Override
+	public int compareTo(Quantifier o) {
+		return Integer.valueOf(val).compareTo(o.getVal());
 	}
 }

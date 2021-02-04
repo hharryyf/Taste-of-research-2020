@@ -9,21 +9,21 @@ public class DeepPnNode {
 	private double deep;
 	private int depth;
 	private DeepPnNode parent;
-	public static double R = 0.15;
 	private List<DeepPnNode> child;
 	private int varcount = 1;
-	public static int inf = 100000000;
+	public static int inf = 120000000;
 	public DeepPnNode(CnfExpression f, int depth) {
 		Result res = ResultGenerator.getInstance();
 		res.setNode();
 		this.deep = 1.0 / depth;
 		this.depth = depth;
+		// System.out.println(depth);
 		this.child = new ArrayList<>();
 		if (f.evaluate() == 1) {
 			this.pn = 0;
-			this.dn = 100000000;
+			this.dn = inf;
 		} else if (f.evaluate() == 0) {
-			this.pn = 100000000;
+			this.pn = inf;
 			this.dn = 0;
 		} else {
 			this.pn = 1;
@@ -43,6 +43,7 @@ public class DeepPnNode {
 				}
 			}
 		}
+		
 		this.parent = null;
 	}
 	
@@ -83,16 +84,19 @@ public class DeepPnNode {
 	}
 	
 	public double dpn() {
+		double R = ResultGenerator.getCommandLine().getR();
 		return (1.0 - 1.0 / this.getDelta()) * R + this.deep * (1.0 - R);
 	}
 	
 	public void expansion(CnfExpression f) {
 		if (f.evaluate() != -1) {
-			System.err.println("bad!");
+			System.err.println("bad!, invalid expansion");
 			System.exit(0);
 		}
+		
 		int i, j;
-		List<Quantifier> list = f.peek(varcount, f.peek().isMax());
+		List<Quantifier> list = f.peekfreq(varcount, f.peek().isMax());
+		//System.out.println("expand quantifiers " + list);
 		for (i = 0 ; i < (1 << varcount); ++i) {
 			CnfExpression fp = f.duplicate();
 			for (j = 0 ; j < varcount; ++j) {
@@ -101,7 +105,7 @@ public class DeepPnNode {
 				} else {
 					fp.set(list.get(j).getVal());
 				}
-				fp.dropquantifier();
+				fp.dropquantifier(list.get(j).getVal());
 			}
 			
 			fp.simplify();
@@ -109,6 +113,7 @@ public class DeepPnNode {
 			nd.parent = this;
 			this.child.add(nd);
 		}
+		
 	}
 	
 	public DeepPnNode MPN(CnfExpression f) {
@@ -130,13 +135,18 @@ public class DeepPnNode {
 		
 		//System.out.println(child.get(idx).getPn() + " -- " + child.get(idx).getDn());
 		//System.out.println(child.get(idx).isSolved());
+		List<Quantifier> curr = f.peekfreq(varcount, f.peek().isMax());
 		for (i = 0; i < varcount; ++i) {
 			if ((idx & (1 << i)) == 0) {
-				f.set(-f.peek().getVal());
+				f.set(-curr.get(i).getVal());
 			} else {
-				f.set(f.peek().getVal());	
+				f.set(curr.get(i).getVal());	
 			}
-			f.dropquantifier();
+			//f.dropquantifier(f.peek().getVal());
+			// f.dropquantifier();
+			//System.out.println(f);
+			f.dropquantifier(curr.get(i).getVal());
+			//System.out.println(f);
 		}
 		f.simplify();
 		return ret;

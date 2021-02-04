@@ -96,9 +96,11 @@ public class DisjunctionDefault implements Disjunction {
 			deletevar(-w, f);
 			if (st.size() == 1) {
 				addUnitClause(st.iterator().next(), f);
+			} else if (st.size() == 2) {
+				for (Integer v : st) {
+					f.updatebinary(v, 1);
+				}
 			}
-			
-			assert(evaluate() != 1);
 			// check it later
 			if (evaluate() == 0) {
 				f.setSatisfied(false);
@@ -114,6 +116,9 @@ public class DisjunctionDefault implements Disjunction {
 	private void clear(DataStructureOptimizedFormula f) {
 		for (Integer it : this.st) {
 			updatecounter(it, -1, f);
+			if (st.size() == 2) {
+				f.updatebinary(it, -1);
+			}
 		}
 		st.clear();
 	}

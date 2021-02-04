@@ -1,6 +1,0 @@
--- on square
-program: bfv2.jar 0
-Average time=  3.06
--- on torus
-program: bfv2.jar 0
-Average time=  1.96 
