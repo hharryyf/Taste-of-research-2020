@@ -2,6 +2,7 @@ package qbfsolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 // import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,7 +80,6 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	
 	@Override
 	public void addcnf(Disjunction c) {
-		// TODO Auto-generated method stub
 		int id = cnf.size() + 1;
 		cnf.put(id, c);
 		List<Integer> list = c.getVariable();
@@ -185,9 +185,62 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		varBin.put(v, this.getBinfreq(v) + inc);
 	}
 	
-	public int eval(int v) {
+	private int eval(int v) {
 		// System.out.println("evaluate " + v + " " + getBinfreq(v));
-		return getBinfreq(v) * 2 + getFreq(v);
+		return getFreq(v);
+	}
+	
+	@Override
+	public List<Quantifier> peekMom(int count, boolean type) {
+		List<Pair<Long, Quantifier>> list = new ArrayList<>();
+		Iterator<Quantifier> it = quantifiers.values().iterator();
+		HashMap<Integer, Integer> ng = new HashMap<>();
+		HashMap<Integer, Integer> ps = new HashMap<>();
+		while (it.hasNext()) {
+			Quantifier q = it.next();
+			if (q.isMax() != type) break;
+			list.add(new Pair<Long, Quantifier>(0L, q));
+		}
+		
+		int mx = 1000000000;
+		for (int i = 0 ; i < list.size(); ++i) {
+			if (varTocnf.getOrDefault(list.get(i).getSecond().getVal(), null) == null) continue;
+			for(Integer id : varTocnf.get(list.get(i).getSecond().getVal())) {				
+				if (cnf.containsKey(id)) {
+					mx = Math.min(cnf.get(id).getSize(), mx);
+				}
+			}
+		}
+		
+		for (int i = 0 ; i < list.size(); ++i) {
+			int val = list.get(i).getSecond().getVal();
+			if (varTocnf.getOrDefault(val, null) == null) continue;
+			for(Integer id : varTocnf.get(list.get(i).getSecond().getVal())) {				
+				if (cnf.containsKey(id) && cnf.get(id).getSize() == mx) {
+					
+					if (cnf.get(id).contains(val)) {
+						ps.put(val, ps.getOrDefault(val, 0) + 1);
+					}
+					
+					if (cnf.get(id).contains(-val)) {
+						ng.put(val, ng.getOrDefault(val, 0) + 1);
+					}
+				}
+			}
+			
+			int x = ps.getOrDefault(val, 0), nx = ng.getOrDefault(val, 0);
+			list.get(i).setFirst(1L * (x + nx) * 1000000000 + 1L * x * nx);
+		}
+		
+		Collections.sort(list);
+		int j = list.size() - 1, i = 0;
+		List<Quantifier> ret = new ArrayList<Quantifier>();
+		while (i < count && j >= 0) {
+			ret.add(list.get(j).getSecond());
+			j--;
+			i++;
+		}
+		return ret;
 	}
 	
 	@Override

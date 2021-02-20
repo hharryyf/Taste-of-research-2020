@@ -10,6 +10,7 @@ public class DeepPnNode {
 	private int depth;
 	private DeepPnNode parent;
 	private List<DeepPnNode> child;
+	private List<Quantifier> candidate;
 	private int varcount = 1;
 	public static int inf = 120000000;
 	public DeepPnNode(CnfExpression f, int depth) {
@@ -17,7 +18,6 @@ public class DeepPnNode {
 		res.setNode();
 		this.deep = 1.0 / depth;
 		this.depth = depth;
-		// System.out.println(depth);
 		this.child = new ArrayList<>();
 		if (f.evaluate() == 1) {
 			this.pn = 0;
@@ -26,22 +26,34 @@ public class DeepPnNode {
 			this.pn = inf;
 			this.dn = 0;
 		} else {
-			this.pn = 1;
-			this.dn = 1;
-			this.isMax = f.peek().isMax();
-			if (this.isMax) {
-				this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBfE());
-			} else {
-				this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBfU());
-			}
-			if (ResultGenerator.getCommandLine().getType() == 0 || 
-				ResultGenerator.getCommandLine().getType() == 3) {
-				if (this.isMax) {
-					this.dn = (1 << varcount);
+			/*if (this.depth > 30) {
+				Solver s = new BruteForce();
+				boolean ret = s.solve(f);
+				if (ret == true) {
+					this.pn = 0;
+					this.dn = inf;
 				} else {
-					this.pn = (1 << varcount);
+					this.pn = inf;
+					this.dn = 0;
 				}
-			}
+			} else {*/
+				this.pn = 1;
+				this.dn = 1;
+				this.isMax = f.peek().isMax();
+				if (this.isMax) {
+					this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBfE());
+				} else {
+					this.varcount = Math.min(f.maxSameQuantifier(this.isMax), ResultGenerator.getCommandLine().getBfU());
+				}
+				if (ResultGenerator.getCommandLine().getType() == 0 || 
+					ResultGenerator.getCommandLine().getType() == 3) {
+					if (this.isMax) {
+						this.dn = (1 << varcount);
+					} else {
+						this.pn = (1 << varcount);
+					}
+				}
+			//}
 		}
 		
 		this.parent = null;
@@ -95,17 +107,16 @@ public class DeepPnNode {
 		}
 		
 		int i, j;
-		List<Quantifier> list = f.peekfreq(varcount, f.peek().isMax());
-		//System.out.println("expand quantifiers " + list);
+		this.candidate = f.peekfreq(varcount, f.peek().isMax());
 		for (i = 0 ; i < (1 << varcount); ++i) {
 			CnfExpression fp = f.duplicate();
 			for (j = 0 ; j < varcount; ++j) {
 				if ((i & (1 << j)) == 0) {
-					fp.set(-list.get(j).getVal());
+					fp.set(-candidate.get(j).getVal());
 				} else {
-					fp.set(list.get(j).getVal());
+					fp.set(candidate.get(j).getVal());
 				}
-				fp.dropquantifier(list.get(j).getVal());
+				fp.dropquantifier(candidate.get(j).getVal());
 			}
 			
 			fp.simplify();
@@ -133,20 +144,15 @@ public class DeepPnNode {
 			System.exit(0);
 		}
 		
-		//System.out.println(child.get(idx).getPn() + " -- " + child.get(idx).getDn());
-		//System.out.println(child.get(idx).isSolved());
-		List<Quantifier> curr = f.peekfreq(varcount, f.peek().isMax());
 		for (i = 0; i < varcount; ++i) {
 			if ((idx & (1 << i)) == 0) {
-				f.set(-curr.get(i).getVal());
+				f.set(-candidate.get(i).getVal());
 			} else {
-				f.set(curr.get(i).getVal());	
+				f.set(candidate.get(i).getVal());	
 			}
 			//f.dropquantifier(f.peek().getVal());
 			// f.dropquantifier();
-			//System.out.println(f);
-			f.dropquantifier(curr.get(i).getVal());
-			//System.out.println(f);
+			f.dropquantifier(candidate.get(i).getVal());
 		}
 		f.simplify();
 		return ret;
@@ -154,15 +160,15 @@ public class DeepPnNode {
 	
 	public void backpropagation() {
 		if (this.isTerminal() || this.isSolved()) return;
-		// System.out.println("enter backpropagation");
 		DeepPnNode curr = null;
+		boolean meet = false;
 		if (this.isMax()) {
 			this.pn = child.get(0).pn;
 			this.dn = 0;
 			for (DeepPnNode c : child) {
-				// System.out.println(c.pn + " E " + c.dn);
 				this.pn = Math.min(this.pn, c.getPn());
 				this.dn += c.getDn();
+				meet = (c.getDn() >= inf) || meet;
 				if ((curr == null && !c.isSolved()) || (curr != null && !c.isSolved() && c.dpn() <= curr.dpn()))  {
 					curr = c;
 				}
@@ -171,8 +177,8 @@ public class DeepPnNode {
 			this.pn = 0;
 			this.dn = child.get(0).dn;
 			for (DeepPnNode c : child) {
-				//System.out.println(c.pn + " U " + c.dn);
 				this.pn += c.getPn();
+				meet = (c.getPn() >= inf) || meet;
 				this.dn = Math.min(this.dn, c.getDn());
 				if ((curr == null && !c.isSolved()) || (curr != null && !c.isSolved() && c.dpn() <= curr.dpn())) {
 					curr = c;
@@ -186,11 +192,18 @@ public class DeepPnNode {
 		
 		if (this.isSolved()) {
 			this.child.clear();
+			if (!meet && this.pn > inf) {
+				System.err.println("inf too small!");
+				System.exit(0);
+			}
+			
+			if (!meet && this.dn > inf) {
+				System.err.println("inf too small!");
+				System.exit(0);
+			}
 			this.pn = Math.min(this.pn, inf);
 			this.dn = Math.min(this.dn, inf);
-		}
-		
-		// System.out.println(this.pn + " -- " + this.dn);
+		}		
 	}
 	
 	public DeepPnNode getParent() {

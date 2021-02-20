@@ -10,13 +10,10 @@ public interface Disjunction {
 	public List<Integer> getVariable();
 	public int getSize();
 	public void add(int val);
+	public void add(int val, PersistentFormula ret);
 	public void set(int v, int val);
 	public void set(int w, DataStructureOptimizedFormula f, int id);
-	/**
-	 * set |v| to be -1, default do nothing
-	 * @param v
-	 */
-	public void undo(int v);
+	public void set(int v, PersistentFormula f, int val);
 	public int evaluate();
 	public Disjunction duplidate();
 }

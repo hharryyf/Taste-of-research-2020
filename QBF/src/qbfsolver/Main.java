@@ -68,7 +68,7 @@ public class Main {
         		return ResultGenerator.getInstance();
             });
 
-            System.out.println(f.get(9000, TimeUnit.SECONDS));
+            System.out.println(f.get(200000, TimeUnit.SECONDS));
             
         } catch (final TimeoutException e) {
             System.out.println("UNSOLVED NA");

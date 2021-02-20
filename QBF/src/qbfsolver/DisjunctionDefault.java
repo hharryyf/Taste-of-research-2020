@@ -166,9 +166,13 @@ public class DisjunctionDefault implements Disjunction {
 	    
 	    return sb.toString();
 	}
+	
+	public void set(int v, PersistentFormula f, int val) {
+		return;
+	}
 
 	@Override
-	public void undo(int v) {
+	public void add(int val, PersistentFormula f) {
 		return;
 	}
 }

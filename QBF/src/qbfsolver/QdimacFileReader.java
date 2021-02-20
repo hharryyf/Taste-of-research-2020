@@ -10,7 +10,8 @@ public class QdimacFileReader {
 		String[] s = first.split("\\s+");
 		int n = Integer.valueOf(s[2]);
 		int m = Integer.valueOf(s[3]);
-		CnfExpression ret = new DataStructureOptimizedFormula(n);
+		PersistentFormula ret = new PersistentFormula(n, m);
+		// CnfExpression ret = new DataStructureOptimizedFormula(n);
 		int i;
 		while (m > 0) {
 			first = sc.nextLine();
@@ -33,10 +34,11 @@ public class QdimacFileReader {
 					}
 				}
 			} else {
-				Disjunction c = new DisjunctionDefault();
+				// Disjunction c = new DisjunctionDefault();
+				Disjunction c = new PersistentClause();
 				for (i = 0 ; i < s.length; ++i) {
 					if (Integer.valueOf(s[i]) != 0) {
-						c.add(Integer.valueOf(s[i]));
+						c.add(Integer.valueOf(s[i]), ret);
 					}
 				}
 				

@@ -1,0 +1,154 @@
+using DeepPNS with stack with mobility intialization
+Max Branching factor Existential 2
+Max Branching factor Universal 8
+R value 0.15
+Iteration #0 pn = 1 dn= 2
+Iteration #1000 pn = 1 dn= 74
+Iteration #2000 pn = 1 dn= 88
+Iteration #3000 pn = 1 dn= 70
+Iteration #4000 pn = 1 dn= 96
+Iteration #5000 pn = 1 dn= 134
+Iteration #6000 pn = 1 dn= 78
+Iteration #7000 pn = 1 dn= 93
+Iteration #8000 pn = 1 dn= 88
+Iteration #9000 pn = 1 dn= 65
+Iteration #10000 pn = 1 dn= 94
+Iteration #11000 pn = 1 dn= 102
+Iteration #12000 pn = 1 dn= 85
+Iteration #13000 pn = 1 dn= 82
+Iteration #14000 pn = 1 dn= 86
+Iteration #15000 pn = 1 dn= 109
+Iteration #16000 pn = 1 dn= 92
+Iteration #17000 pn = 1 dn= 110
+Iteration #18000 pn = 1 dn= 118
+Iteration #19000 pn = 1 dn= 70
+Iteration #20000 pn = 1 dn= 63
+Iteration #21000 pn = 1 dn= 96
+Iteration #22000 pn = 1 dn= 56
+Iteration #23000 pn = 1 dn= 56
+Iteration #24000 pn = 1 dn= 56
+Iteration #25000 pn = 1 dn= 86
+Iteration #26000 pn = 1 dn= 49
+Iteration #27000 pn = 1 dn= 51
+Iteration #28000 pn = 1 dn= 86
+Iteration #29000 pn = 1 dn= 66
+Iteration #30000 pn = 1 dn= 118
+Iteration #31000 pn = 1 dn= 120
+Iteration #32000 pn = 1 dn= 98
+Iteration #33000 pn = 1 dn= 114
+Iteration #34000 pn = 1 dn= 138
+Iteration #35000 pn = 1 dn= 113
+Iteration #36000 pn = 1 dn= 90
+Iteration #37000 pn = 1 dn= 98
+Iteration #38000 pn = 1 dn= 102
+Iteration #39000 pn = 1 dn= 91
+Iteration #40000 pn = 1 dn= 146
+Iteration #41000 pn = 1 dn= 143
+Iteration #42000 pn = 1 dn= 126
+Iteration #43000 pn = 1 dn= 108
+Iteration #44000 pn = 1 dn= 150
+Iteration #45000 pn = 1 dn= 110
+Iteration #46000 pn = 1 dn= 114
+Iteration #47000 pn = 1 dn= 92
+Iteration #48000 pn = 1 dn= 122
+Iteration #49000 pn = 1 dn= 74
+Iteration #50000 pn = 1 dn= 89
+Iteration #51000 pn = 1 dn= 120
+Iteration #52000 pn = 1 dn= 108
+Iteration #53000 pn = 1 dn= 113
+Iteration #54000 pn = 1 dn= 96
+Iteration #55000 pn = 1 dn= 79
+Iteration #56000 pn = 1 dn= 100
+Iteration #57000 pn = 1 dn= 105
+Iteration #58000 pn = 1 dn= 68
+Iteration #59000 pn = 1 dn= 48
+Iteration #60000 pn = 1 dn= 80
+Iteration #61000 pn = 1 dn= 84
+Iteration #62000 pn = 1 dn= 56
+Iteration #63000 pn = 1 dn= 90
+Iteration #64000 pn = 1 dn= 122
+Iteration #65000 pn = 1 dn= 91
+Iteration #66000 pn = 1 dn= 46
+Iteration #67000 pn = 1 dn= 82
+Iteration #68000 pn = 1 dn= 64
+Iteration #69000 pn = 1 dn= 100
+Iteration #70000 pn = 1 dn= 63
+Iteration #71000 pn = 1 dn= 93
+Iteration #72000 pn = 1 dn= 76
+Iteration #73000 pn = 1 dn= 92
+Iteration #74000 pn = 1 dn= 114
+Iteration #75000 pn = 1 dn= 94
+Iteration #76000 pn = 1 dn= 96
+Iteration #77000 pn = 1 dn= 112
+Iteration #78000 pn = 1 dn= 54
+Iteration #79000 pn = 1 dn= 71
+Iteration #80000 pn = 1 dn= 84
+Iteration #81000 pn = 1 dn= 64
+Iteration #82000 pn = 1 dn= 25
+Iteration #83000 pn = 1 dn= 64
+Iteration #84000 pn = 1 dn= 66
+Iteration #85000 pn = 1 dn= 48
+Iteration #86000 pn = 1 dn= 64
+Iteration #87000 pn = 1 dn= 94
+Iteration #88000 pn = 1 dn= 52
+Iteration #89000 pn = 1 dn= 96
+Iteration #90000 pn = 1 dn= 120
+Iteration #91000 pn = 1 dn= 118
+Iteration #92000 pn = 1 dn= 122
+Iteration #93000 pn = 1 dn= 80
+Iteration #94000 pn = 1 dn= 113
+Iteration #95000 pn = 1 dn= 104
+Iteration #96000 pn = 1 dn= 86
+Iteration #97000 pn = 1 dn= 108
+Iteration #98000 pn = 1 dn= 91
+Iteration #99000 pn = 1 dn= 146
+Iteration #100000 pn = 1 dn= 151
+Iteration #101000 pn = 1 dn= 92
+Iteration #102000 pn = 1 dn= 131
+Iteration #103000 pn = 1 dn= 136
+Iteration #104000 pn = 1 dn= 116
+Iteration #105000 pn = 1 dn= 85
+Iteration #106000 pn = 1 dn= 95
+Iteration #107000 pn = 1 dn= 122
+Iteration #108000 pn = 1 dn= 94
+Iteration #109000 pn = 1 dn= 104
+Iteration #110000 pn = 1 dn= 134
+Iteration #111000 pn = 1 dn= 108
+Iteration #112000 pn = 1 dn= 121
+Iteration #113000 pn = 1 dn= 116
+Iteration #114000 pn = 1 dn= 93
+Iteration #115000 pn = 1 dn= 92
+Iteration #116000 pn = 1 dn= 113
+Iteration #117000 pn = 1 dn= 88
+Iteration #118000 pn = 1 dn= 65
+Iteration #119000 pn = 1 dn= 120
+Iteration #120000 pn = 1 dn= 162
+Iteration #121000 pn = 1 dn= 138
+Iteration #122000 pn = 1 dn= 128
+Iteration #123000 pn = 1 dn= 152
+Iteration #124000 pn = 1 dn= 134
+Iteration #125000 pn = 1 dn= 118
+Iteration #126000 pn = 1 dn= 112
+Iteration #127000 pn = 1 dn= 162
+Iteration #128000 pn = 1 dn= 121
+Iteration #129000 pn = 1 dn= 149
+Iteration #130000 pn = 1 dn= 171
+Iteration #131000 pn = 1 dn= 141
+Iteration #132000 pn = 1 dn= 106
+Iteration #133000 pn = 1 dn= 154
+Iteration #134000 pn = 1 dn= 155
+Iteration #135000 pn = 1 dn= 189
+Iteration 135039 pn = 0 dn= 120000000
+Tolvisited = 4036808
+true
+SAT 135039 459553
+program: bchfeq.jar 5 1 3 0.15
+Time time=  5820.81920671463
+using brute force
+Max Branching factor Existential 8
+Max Branching factor Universal 8
+R value 0.1
+true
+SAT 0 0
+program: bchfeq.jar 0
+Time time=  579.9892363548279

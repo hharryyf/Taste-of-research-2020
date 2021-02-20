@@ -26,4 +26,5 @@ public interface CnfExpression {
 	int getNegfreq(int id);
 	int getPosfreq(int id);
 	List<Quantifier> peekfreq(int count, boolean type);
+	List<Quantifier> peekMom(int count, boolean type);
 }

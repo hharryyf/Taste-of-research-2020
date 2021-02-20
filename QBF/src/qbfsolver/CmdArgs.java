@@ -2,9 +2,9 @@ package qbfsolver;
 
 public class CmdArgs {
 	private int type = 0;
-	private int bfU = 1;
+	private int bfU = 3;
 	private int bfE = 3;
-	private double R = 0.25;
+	private double R = 0.1;
 	public CmdArgs() {
 		
 	}
