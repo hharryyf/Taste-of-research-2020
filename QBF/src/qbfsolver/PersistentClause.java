@@ -2,10 +2,12 @@ package qbfsolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class PersistentClause implements Disjunction {
 	
@@ -13,9 +15,14 @@ public class PersistentClause implements Disjunction {
 	private int proved = 0, disproved = 0;
 	// [literal, value (-1, 0, 1), 0 means -literal, 1 means good, -1 means pending]
 	private Map<Integer, Integer> literal; 
-	
+	// in active means element contributes to frequency
+	// otherwise, no
+	private Set<Integer> active;
+	private Set<Integer> updated;
 	public PersistentClause() {
 		literal = new HashMap<>();
+		this.active = new HashSet<>();
+		this.updated = new HashSet<>();
 	}
  	
 	@Override
@@ -74,12 +81,15 @@ public class PersistentClause implements Disjunction {
 			this.proved += 2;
 		}
 		
+		
 		if (f.isMax(val)) {
 			this.incExist(1);
 		} else {
 			this.incUni(1);
 		}
 		this.literal.put(val, -1);
+		this.active.add(val);
+		this.updated.add(val);
 	}
 	
 	private void incExist(int val) {
@@ -111,6 +121,7 @@ public class PersistentClause implements Disjunction {
 	 * only 1->-1, -1->1, 0->-1,-1->0 possible
 	 */
 	public void set(int v, PersistentFormula f, int val) {
+		//System.out.println("set " + v + " to " + val);
 		int beforeeval = evaluate();
 		if (v < 0) {
 			System.err.print("something bad has happened");
@@ -135,7 +146,10 @@ public class PersistentClause implements Disjunction {
 			}
 			updateCounter(u, 1, f);
 		} else {
-			int w = v * (val == 1 ? 1 : -1), u = literal.containsKey(v) ? v : -v;
+			int w = literal.getOrDefault(v, 0) + literal.getOrDefault(-v, 0);
+			if (w != -1) return;
+			w = v * (val == 1 ? 1 : -1);
+			int u = literal.containsKey(v) ? v : -v;
 			if (w == u) {
 				literal.put(u, 1);
 				this.proved++;
@@ -152,6 +166,27 @@ public class PersistentClause implements Disjunction {
 		if (aftereval != beforeeval) {
 			change(beforeeval, aftereval, f);
 		}
+		
+		if (evaluate() != -1) {
+			active.clear();
+		}
+		
+		Iterator<Entry<Integer, Integer>> itr = literal.entrySet().iterator(); 
+        while(itr.hasNext()) { 
+             Entry<Integer, Integer> entry = itr.next(); 
+             if (evaluate() == -1 && entry.getValue() == -1) {
+            	 active.add(entry.getKey());
+             } else {
+            	 active.remove(entry.getKey());
+             }
+             if (updated.contains(entry.getKey()) && !active.contains(entry.getKey())) {
+            	 f.updateCounter(entry.getKey(), -1);
+            	 updated.remove(entry.getKey());
+             } else if (!updated.contains(entry.getKey()) && active.contains(entry.getKey())) {
+            	 f.updateCounter(entry.getKey(), 1);
+            	 updated.add(entry.getKey());
+             }
+        } 
 	}
 	
 	public int getUni() {
@@ -178,45 +213,42 @@ public class PersistentClause implements Disjunction {
 			this.incUni(inc);
 		}
 		
-		if (inc == -1 && this.existcount == 1 && f.isMax(v)) {
+		if (inc == -1 && this.existcount == 1 && evaluate() == -1 && this.disproved - this.literal.size() == -1) {
 			Iterator<Entry<Integer, Integer>> itr = literal.entrySet().iterator(); 
 	        while(itr.hasNext()) { 
 	             Entry<Integer, Integer> entry = itr.next(); 
 	             if (f.isMax(entry.getKey()) && entry.getValue() == -1) {
 	            	 f.addUnit(entry.getKey());
+	            	 System.out.println("unit " + entry.getKey() + " " + this);
 	             }
 	        } 
 		}
 		
-		if (inc == -1) {
-			f.updateCounter(v, inc);
+		if (inc > 0) {
+			active.add(v);
+		} else {
+			active.remove(v);
 		}
 	}
 	
 	private void change(int before, int after, PersistentFormula f) {
-		Iterator<Entry<Integer, Integer>> itr = literal.entrySet().iterator(); 
-        while(itr.hasNext()) { 
-             Entry<Integer, Integer> entry = itr.next(); 
-             if (entry.getValue() == -1) {
-            	 if (before == -1) {
-            		 f.updateCounter(entry.getKey(), -1);
-            	 } else if (after == -1) {
-            		 f.updateCounter(entry.getKey(), 1);
-            	 }
-             }
-        } 
-        
         if (before == -1) {
         	if (after == 1) {
         		f.incProved(1);
         	} else {
         		f.incDisproved(1);
+        		//System.out.println("add 1 disproved");
+        		//System.out.println(this);
         	}
         } else if (before == 0) {
         	if (after == -1) {
         		f.incDisproved(-1);
+        		//System.out.println("remove 1 disproved");
+        		//System.out.println(this);
         	} else {
         		f.incDisproved(-1);
+        		//System.out.println("remove 1 disproved");
+        		//System.out.println(this);
         		f.incProved(1);
         	}
         } else {
@@ -227,5 +259,9 @@ public class PersistentClause implements Disjunction {
         		f.incProved(-1);
         	}
         }
+	}
+	
+	public String toString() {
+		return "[" + this.literal.toString() + " " + this.disproved + " " + this.proved + " " + this.existcount + " " + this.evaluate() + "]";
 	}
 }

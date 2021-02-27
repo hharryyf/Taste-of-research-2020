@@ -1,46 +1,63 @@
 package qbfsolver;
 
-import java.util.List;
-
 public class BruteForce implements Solver {
 	private int cnt = 0;
 	@Override
 	public boolean solve(CnfExpression f) {
+		System.out.println("print formula:\n" + f);
+		Result rr = ResultGenerator.getInstance();
+		rr.setIteration(1 + rr.getIteration());
 		if (f == null) return true;
 		if (f.getn() <= 0) return true;
 		int ret = f.evaluate();
 		if (ret == 0) return false;
 		if (ret == 1) return true;
-		CnfExpression f0 = f.duplicate();
-		CnfExpression f1 = f.duplicate();
 		boolean type = f.peek().isMax();
 		if (type) {
 			Quantifier q = f.peekfreq(1, f.peek().isMax()).get(0);
-			f1.set(q.getVal());
-			f0.set(-q.getVal());
-			f0.dropquantifier(q.getVal());
-			f1.dropquantifier(q.getVal());
-			f0.simplify();
-			f1.simplify();
-			return solve(f0) || solve(f1);
-		}
-		int i, j;
-		List<Quantifier> candidate = f.peekfreq(3, false);
-		for (i = 0 ; i < (1 << candidate.size()); ++i) {
-			CnfExpression fp = f.duplicate();
-			for (j = 0 ; j < candidate.size(); ++j) {
-				if ((i & (1 << j)) == 0) {
-					fp.set(-candidate.get(j).getVal());
-				} else {
-					fp.set(candidate.get(j).getVal());
-				}
-				fp.dropquantifier(candidate.get(j).getVal());
+			f.set(q.getVal());
+			// System.out.println("set " + q.getVal());
+			// System.out.println(f);
+			f.dropquantifier(q.getVal());
+			//System.out.println(f);
+			f.simplify();
+			f.commit();
+			boolean res = solve(f);
+			f.undo();
+			// System.out.println("undo!");
+			//System.out.println(f);
+			if (res) {
+				return true;
 			}
-			
-			fp.simplify();
-			if (!solve(fp)) return false;
+			f.set(-q.getVal());
+			f.dropquantifier(q.getVal());
+			f.simplify();
+			f.commit();
+			res = solve(f);
+			f.undo();
+			return res;
 		}
-		return true;
+		
+		
+		Quantifier q = f.peekfreq(1, f.peek().isMax()).get(0);
+		f.set(q.getVal());
+		// System.out.println("set " + q.getVal());
+		f.dropquantifier(q.getVal());
+		f.simplify();
+		f.commit();
+		boolean res = solve(f);
+		f.undo();
+		if (!res) {
+			return false;
+		}
+		f.set(-q.getVal());
+		f.dropquantifier(q.getVal());
+		f.simplify();
+		f.commit();
+		res = solve(f);
+		f.undo();
+		// System.out.println(f);
+		return res;
 	}
 	
 	public boolean solve_depth(CnfExpression f, int d) {

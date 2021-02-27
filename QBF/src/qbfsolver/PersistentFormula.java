@@ -1,6 +1,7 @@
 package qbfsolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,10 +35,11 @@ public class PersistentFormula implements CnfExpression {
 	private int[] order;
 	private boolean[] isexist;
 	private Set<Integer> usedvar;
-	boolean normalized = false;
+	private boolean normalized;
 	public PersistentFormula(int n, int fcount) {
 		int i;
 		this.n = n;
+		this.normalized = false;
 		this.quantifiercount = n;
 		this.fcount = fcount;
 		this.formula = new ArrayList<>();
@@ -87,11 +89,6 @@ public class PersistentFormula implements CnfExpression {
 		List<Integer> ret = c.getLiteral();
 		for (int i = 0 ; i < ret.size(); ++i) {
 			int v = ret.get(i);
-			if (v > 0) {
-				this.poscount[v]++;
-			} else {
-				this.negcount[-v]++;
-			}
 			
 			this.updateCounter(v, 1);
 			if (ret.size() == 1) this.addUnit(v);
@@ -99,12 +96,27 @@ public class PersistentFormula implements CnfExpression {
 			varToformula.get(v).add(formula.size());
 		}
 		formula.add(c);
+		
 	}
-
+	
+	public void setNormal() {
+		this.normalized = true;
+	}
+	
 	@Override
 	public void addquantifier(Quantifier q) {
 		this.quantifiercount++;
+		// System.out.println(this.normalized);
 		if (this.normalized) {
+			// System.out.println("rec " + q);
+			// System.err.println("enter here!");
+			if (!this.quantifier.contains(new Pair<Integer, Quantifier>(order[q.getVal()], q))) {
+				// System.out.println("insert " + q);
+				if (!isMax(q.getVal())) {
+					this.unicount++;
+					// System.out.println("undo " + q.getVal());
+				}
+			}
 			this.quantifier.add(new Pair<Integer, Quantifier>(order[q.getVal()], q));
 		} else {
 			if (this.quantifier.isEmpty()) {
@@ -115,6 +127,7 @@ public class PersistentFormula implements CnfExpression {
 					order[q.getVal()] = 0;
 				}
 			} else {
+				isexist[q.getVal()] = q.isMax();
 				Pair<Integer, Quantifier> pre = this.quantifier.last();
 				if (pre.getSecond().isMax() != q.isMax()) {
 					order[q.getVal()] = pre.getFirst() + 1;
@@ -130,7 +143,7 @@ public class PersistentFormula implements CnfExpression {
 
 	@Override
 	public Quantifier peek() {
-		if (normalized = false) {
+		if (this.normalized == false) {
 			System.err.println("hasn't called normal!");
 			System.exit(0);
 		}
@@ -140,7 +153,7 @@ public class PersistentFormula implements CnfExpression {
 
 	@Override
 	public int maxSameQuantifier(boolean type) {
-		if (normalized = false) {
+		if (normalized == false) {
 			System.err.println("hasn't called normal!");
 			System.exit(0);
 		}
@@ -156,7 +169,7 @@ public class PersistentFormula implements CnfExpression {
 
 	@Override
 	public List<Quantifier> peek(int count, boolean type) {
-		if (normalized = false) {
+		if (normalized == false) {
 			System.err.println("hasn't called normal!");
 			System.exit(0);
 		}
@@ -186,7 +199,16 @@ public class PersistentFormula implements CnfExpression {
 
 	@Override
 	public void dropquantifier(int v) {
+		if (v < 0) v = -v;
+		if (this.quantifier.contains(new Pair<>(order[v], new Quantifier(isMax(v), v)))) {
+			if (!isMax(v)) {
+				this.unicount--; 
+				//System.out.println("eliminate " + v);
+			}
+			this.quantifiercount--;
+		}
 		quantifier.remove(new Pair<>(order[v], new Quantifier(isMax(v), v)));
+		this.usedvar.add(v);
 	}
 
 	@Override
@@ -196,15 +218,19 @@ public class PersistentFormula implements CnfExpression {
 			Disjunction d = this.formula.get(id);
 			d.set(Math.abs(v), this, v > 0 ? 1 : 0);
 		}
+		
 		this.usedvar.add(v);
+		// System.err.println("finish!");
 	}
 	
 	private void unassign(int v) {
 		if (v < 0) v = -v;
+		// System.out.println("unset " + v);
 		for (Integer id : this.varToformula.get(v)) {
 			Disjunction d = this.formula.get(id);
 			d.set(v, this, -1);
 		}
+		// System.out.println("finish! unset");
 	}
 	
 	@Override
@@ -223,6 +249,7 @@ public class PersistentFormula implements CnfExpression {
 		for (int i = 1; i <= n; ++i) {
 			if (quantifier.contains(new Pair<>(order[i], new Quantifier(isMax(i), i)))) continue;
 			quantifier.add(new Pair<>(order[i], new Quantifier(isMax(i), i)));
+			// this.addquantifier(q);
 		}
 		
 		for (int i = 1; i <= n; ++i) {
@@ -232,15 +259,23 @@ public class PersistentFormula implements CnfExpression {
 		}
 		
 		eliminate_useless_quantifier();
-		this.normalized = true;
+		// System.out.println(quantifier);
+		this.setNormal();
+		this.unicount = 0;
+		for (int i = 1; i <= n; ++i) {
+			// System.out.println(i + " pos= " + poscount[i] + " neg= " + negcount[i]);
+			if (this.getFreq(i) > 0 && !this.isMax(i)) this.unicount++;
+		}
+		// System.err.println(this.normalized);
 	}
 
 	@Override
 	public void simplify() {
-		boolean t1 = true, t2 = true;
+		boolean t1 = true;
+		boolean t2 = false;
 		while (t1 || t2) {
 			t1 = unit_propagation();
-			t2 = pure_literal_elimination();
+			// t2 = pure_literal_elimination();
 		}
 		
 		this.eliminate_useless_quantifier();
@@ -251,6 +286,7 @@ public class PersistentFormula implements CnfExpression {
 		if (unit.isEmpty()) return false;
 		while (!unit.isEmpty()) {
 			int v = unit.pollFirst();
+			// System.out.println("unit clause " + v);
 			if (isMax(v)) {
 				this.set(v);
 			} else {
@@ -274,13 +310,13 @@ public class PersistentFormula implements CnfExpression {
 	}
 	private void eliminate_useless_quantifier() {
 		for (Integer id : this.useless) {
-			this.usedvar.add(id);
-			this.quantifier.remove(new Pair<>(order[id], new Quantifier(isMax(id), id)));
+			this.dropquantifier(id);
 		}
 	}
 	
 	@Override
 	public int evaluate() {
+		// System.out.println(this.disproved + " " + this.proved + " " + this.fcount + " " + this.unicount);
 		if (this.disproved > 0) return 0;
 		if (this.proved == this.fcount) return 1;
 		if (this.unicount == 0) {
@@ -337,8 +373,28 @@ public class PersistentFormula implements CnfExpression {
 
 	@Override
 	public List<Quantifier> peekfreq(int count, boolean type) {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Pair<Integer, Quantifier>> mp = new ArrayList<>();
+		Iterator<Pair<Integer, Quantifier>> it = quantifier.iterator();
+		while (it.hasNext()) {
+			Quantifier q = it.next().getSecond();
+			if (q.isMax() == type) {
+				mp.add(new Pair<Integer, Quantifier>(this.getFreq(q.getVal()), q));
+			} else {
+				break;
+			}
+		}
+		
+		Collections.sort(mp);
+		count = Math.max(Math.min(count, 4), 1);
+		List<Quantifier> ret = new ArrayList<Quantifier>();
+		int i = 0, j = mp.size() - 1;
+		while (i < count && j >= 0) {
+			ret.add(mp.get(j).getSecond());
+			i++;
+			j--;
+		}
+		
+		return ret;
 	}
 
 	@Override
@@ -354,16 +410,23 @@ public class PersistentFormula implements CnfExpression {
 				st.add(it);
 			}
 			usedvar.clear();
+			this.assigned.add(st);
 		}
 	}
 	
+	@Override
 	public void undo() {
 		if (!this.assigned.isEmpty()) {
 			Set<Integer> last = assigned.pollLast();
 			for (Integer it : last) {
+				it = Math.abs(it);
 				this.unassign(it);
+				// System.out.println("recover " + it);
+				this.addquantifier(new Quantifier(isMax(it), it));
 			}
 		}
+		this.unit.clear();
+		this.pure.clear();
 	}
 	
 	public void addUnit(int v) {
@@ -371,14 +434,27 @@ public class PersistentFormula implements CnfExpression {
 	}
 	
 	public void updateCounter(int v, int inc) {
+		
 		if (v > 0) {
 			poscount[v] += inc;
 			if (negcount[v] > 0 && poscount[v] == 0) {
-				pure.add(v);
+				pure.add(-v);
 			}
 			
 			if (negcount[v] == 0 && poscount[v] > 0) {
 				pure.add(v);
+			}
+			
+			if (poscount[v] + negcount[v] == 0) {
+				useless.add(v);
+				pure.remove(v);
+				pure.remove(-v);
+				unit.remove(v);
+				unit.remove(-v);
+			}
+			
+			if (negcount[v] > 0 || poscount[v] > 0) {
+				useless.remove(v);
 			}
 		} else {
 			v = -v;
@@ -388,14 +464,32 @@ public class PersistentFormula implements CnfExpression {
 			}
 			
 			if (negcount[v] == 0 && poscount[v] > 0) {
-				pure.add(-v);
+				pure.add(v);
+			}
+			
+			if (poscount[v] + negcount[v] == 0) {
+				useless.add(v);
+				pure.remove(-v);
+				pure.remove(v);
+				unit.remove(v);
+				unit.remove(-v);
+			}
+			
+			if (negcount[v] > 0 || poscount[v] > 0) {
+				useless.remove(v);
 			}
 		}
 		
-		if (poscount[v] + negcount[v] == 0) {
-			useless.add(v);
-			pure.remove(v);
-			unit.remove(v);
-		} 
+		 
+	}
+	
+	public String toString() {
+		// System.out.println(poscount[9] + " " + negcount[9]);
+		System.out.println(this.quantifier);
+		System.out.println(this.assigned);
+		for (int i = 1; i <= n; ++i) {
+			System.out.println(i + ":[" + poscount[i] + "," + negcount[i] + "] ");
+		}
+		return  "[" + this.proved + ", " + this.disproved + ", " + this.unicount + ", " + this.evaluate() + "] " + this.formula.toString();
 	}
 }

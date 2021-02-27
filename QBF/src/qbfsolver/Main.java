@@ -15,8 +15,9 @@ public class Main {
                 final Future<Object> f = service.submit(() -> {
             	QdimacFileReader rd = new QdimacFileReader();
         		CnfExpression fo = rd.read();
+        		System.out.println(fo);
         		CmdArgs arg = ResultGenerator.getCommandLine();
-        		Solver s = new DeepPNS();
+        		Solver s = new BruteForce();
         		if (args.length >= 1) {
         			int val = Integer.valueOf(args[0]);
         			if (val == 0) {
@@ -61,9 +62,11 @@ public class Main {
         		if (s.getClass() == BruteForce.class) {
         			Result ret = ResultGenerator.getInstance();
         			ret.setTruth(res);
-        			ret.setIteration(0);
+        			System.out.println("brute");
+        			// ret.setIteration(0);
         		}
         		
+        		System.out.println(fo);
         		System.out.println(res);
         		return ResultGenerator.getInstance();
             });

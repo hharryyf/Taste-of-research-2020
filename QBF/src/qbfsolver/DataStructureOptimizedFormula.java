@@ -518,4 +518,14 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		}
 		return count;
 	}
+	
+	@Override
+	public void commit() {
+		return;
+	}
+	
+	@Override
+	public void undo() {
+		return;
+	}
 }

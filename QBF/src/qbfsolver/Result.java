@@ -2,16 +2,20 @@ package qbfsolver;
 
 public class Result {
 	private String truth;
-	private int iterations;
+	private long iterations;
 	private int nodecount;
 	public Result() {
 		this.truth = new String("UNSOLVED");
-		this.iterations = 1000000;
+		this.iterations = 0;
 		this.nodecount = 0;
 	}
 	
-	public void setIteration(int it) {
+	public void setIteration(long it) {
 		this.iterations = it;
+	}
+	
+	public long getIteration() {
+		return this.iterations;
 	}
 	
 	public void setTruth(boolean val) {

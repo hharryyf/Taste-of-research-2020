@@ -22,6 +22,8 @@ public interface CnfExpression {
 	public void simplify();
 	public int evaluate();
 	public CnfExpression duplicate();
+	public void undo();
+	public void commit();
 	int getFreq(int id);
 	int getNegfreq(int id);
 	int getPosfreq(int id);
