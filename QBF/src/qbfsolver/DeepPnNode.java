@@ -107,7 +107,8 @@ public class DeepPnNode {
 		}
 		
 		int i, j;
-		this.candidate = f.peekfreq(varcount, f.peek().isMax());
+		//System.out.println("expansion!");
+		this.candidate = f.peekfreq(varcount, f.peek().isMax());		
 		for (i = 0 ; i < (1 << varcount); ++i) {
 			CnfExpression fp = f.duplicate();
 			for (j = 0 ; j < varcount; ++j) {
@@ -116,13 +117,17 @@ public class DeepPnNode {
 				} else {
 					fp.set(candidate.get(j).getVal());
 				}
-				fp.dropquantifier(candidate.get(j).getVal());
+				if (f.getClass() != PersistentFormula.class) {
+					fp.dropquantifier(candidate.get(j).getVal());
+				}
 			}
 			
 			fp.simplify();
+			f.commit();
 			DeepPnNode nd = new DeepPnNode(fp, this.depth + 1);
 			nd.parent = this;
 			this.child.add(nd);
+			f.undo();
 		}
 		
 	}
@@ -143,7 +148,7 @@ public class DeepPnNode {
 			System.err.println("No such node");
 			System.exit(0);
 		}
-		
+		// System.out.println("MPN= " + idx);
 		for (i = 0; i < varcount; ++i) {
 			if ((idx & (1 << i)) == 0) {
 				f.set(-candidate.get(i).getVal());
@@ -152,13 +157,17 @@ public class DeepPnNode {
 			}
 			//f.dropquantifier(f.peek().getVal());
 			// f.dropquantifier();
-			f.dropquantifier(candidate.get(i).getVal());
+			if (f.getClass() != PersistentFormula.class) {
+				f.dropquantifier(candidate.get(i).getVal());
+			}
 		}
 		f.simplify();
+		f.commit();
 		return ret;
 	}
 	
 	public void backpropagation() {
+		// System.out.println("backprop");
 		if (this.isTerminal() || this.isSolved()) return;
 		DeepPnNode curr = null;
 		boolean meet = false;

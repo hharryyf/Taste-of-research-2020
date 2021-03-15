@@ -1,8 +1,8 @@
 package qbfsolver;
 
 public class Pair<K extends Comparable<K>, V extends Comparable<V>> implements Comparable<Pair<K, V>>{
-	private K first;
-	private V second;
+	protected K first;
+	protected V second;
 	public Pair(K first, V second) {
 		this.first = first;
 		this.second = second;

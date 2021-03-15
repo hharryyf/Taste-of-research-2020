@@ -31,6 +31,7 @@ public class PNS implements Solver {
 			while (curr != null) {
 				curr.backpropagation();
 				curr = curr.getParent();
+				f.undo();
 			}
 			
 			i++;

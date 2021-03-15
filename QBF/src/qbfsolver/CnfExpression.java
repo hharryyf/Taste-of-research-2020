@@ -24,9 +24,9 @@ public interface CnfExpression {
 	public CnfExpression duplicate();
 	public void undo();
 	public void commit();
-	int getFreq(int id);
-	int getNegfreq(int id);
-	int getPosfreq(int id);
-	List<Quantifier> peekfreq(int count, boolean type);
-	List<Quantifier> peekMom(int count, boolean type);
+	public int getFreq(int id);
+	public int getNegfreq(int id);
+	public int getPosfreq(int id);
+	public List<Quantifier> peekfreq(int count, boolean type);
+	public List<Quantifier> peekMom(int count, boolean type);
 }

@@ -120,11 +120,14 @@ public class PNSNode {
 				} else {
 					fp.set(list.get(j).getVal());
 				}
-				fp.dropquantifier();
+				
+				fp.dropquantifier(list.get(j).getVal());
 			}
 			
 			fp.simplify();
+			fp.commit();
 			PNSNode nd = new PNSNode(fp);
+			fp.undo();
 			nd.setParent(this);
 			this.child.add(nd);
 		}
@@ -156,9 +159,11 @@ public class PNSNode {
 			} else {
 				f.set(f.peek().getVal());	
 			}
+			
 			f.dropquantifier();
 		}
 		f.simplify();
+		f.commit();
 		return ret;
 	}
 	// check overflow INF

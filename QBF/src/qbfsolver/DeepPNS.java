@@ -29,7 +29,10 @@ public class DeepPNS implements Solver {
 			}
 					
 			CnfExpression fp = stk.peek().duplicate();
-			if (curr == null) curr = root;
+			if (curr == null) {
+				curr = root;
+				// System.out.println("not good!");
+			}
 			DeepPnNode it;
 			while (true) {
 				// System.out.println(fp);
@@ -44,7 +47,12 @@ public class DeepPNS implements Solver {
 				int pn = curr.getPn(), dn = curr.getDn();
 				curr.backpropagation();
 				if (pn == curr.getPn() && dn == curr.getDn()) break;
-				curr = curr.getParent();
+				if (curr != root) {
+					curr = curr.getParent();
+					if (!stk.isEmpty()) {
+						stk.peek().undo();
+					}
+				}
 				stk.pop();
 				tolvisited++;
 			}

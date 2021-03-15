@@ -173,10 +173,6 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	
 	public int getBinfreq(int id) {
 		int ret = varBin.getOrDefault(id, 0);
-		if (ret < 0) {
-			System.err.println("frequency invalid!");
-			System.exit(0);
-		}
 		return ret;
 	}
 	
@@ -186,7 +182,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	}
 	
 	private int eval(int v) {
-		// System.out.println("evaluate " + v + " " + getBinfreq(v));
+		// System.out.println("evaluate " + v + " " + getFreq(v));
 		return getFreq(v);
 	}
 	
@@ -267,6 +263,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		}
 		
 		// System.out.println("freqbin " + mp);
+		System.out.println(mp);
 		return ret;
 	}
 	
@@ -382,6 +379,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		if (this.terminal() != -1) return false;
 		if (unit.isEmpty()) return false;
 		int v = unit.pollFirst();
+		System.out.println("unit out " + v);
 		if (varToquantifier.containsKey(Math.abs(v))) {
 			if (quantifiers.get(varToquantifier.get(Math.abs(v))).isMax()) {
 				this.set(v);
@@ -446,7 +444,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 				try {
 					s.addClause(new VecInt(clause));
 				} catch (ContradictionException e) {
-					e.printStackTrace();
+					return 0;
 				}
 			}
 			

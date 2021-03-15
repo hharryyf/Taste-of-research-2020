@@ -1,11 +1,6 @@
 package qbfsolver;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class Main {
 
@@ -14,60 +9,23 @@ public class Main {
         try {
                 final Future<Object> f = service.submit(() -> {
             	QdimacFileReader rd = new QdimacFileReader();
-        		CnfExpression fo = rd.read();
-        		System.out.println(fo);
-        		CmdArgs arg = ResultGenerator.getCommandLine();
-        		Solver s = new BruteForce();
-        		if (args.length >= 1) {
-        			int val = Integer.valueOf(args[0]);
-        			if (val == 0) {
-        				System.out.println("using brute force");
-        				s = new BruteForce();
-        			} else if (val == 1) {
-        				System.out.println("using PNS return to the root with standard intialization");
-        				s = new PNS();
-        				arg.setType(1);
-        			} else if (val == 2) {
-        				System.out.println("using PNS with stack with standard intialization");
-        				s = new PNSv2();
-        				arg.setType(2);
-        			} else if (val == 3) {
-        				System.out.println("using standard PNS with mobility intialization");
-        				s = new PNS();
-        				arg.setType(3);
-        			} else if (val == 4) {
-        				s = new PNSv2();
-        				arg.setType(3);
-        				System.out.println("using PNS with stack with mobility intialization");
-        			} else {
-        				arg.setType(3);
-        				System.out.println("using DeepPNS with stack with mobility intialization");
-        			}
-        			
-        			if (args.length >= 3) {
-        				arg.setBfE(Integer.valueOf(args[1]));
-        				arg.setBfU(Integer.valueOf(args[2]));
-        				arg.setR(Double.valueOf(args[3]));
-        			}
-        			
+        		CnfExpression fo;
+        		Result ret = ResultGenerator.getInstance();
+        		if (args.length == 0) {
+        			fo = rd.read(0);
+        		    BruteForce s = new BruteForce();
+        			//DeepPNS s = new DeepPNS();
+        			System.out.println("bruteforce with persistent data structure");
+        			ret.setTruth(s.solve(fo));
+        			//s.solve(fo);
         		} else {
-        			System.out.println("using DeepPNS with stack with mobility intialization");
-        			arg.setType(0);
-        		}
-        		
-        		System.out.println("Max Branching factor Existential " + (1 << arg.getBfE()));
-        		System.out.println("Max Branching factor Universal " + (1 << arg.getBfU()));
-        		System.out.println("R value " + arg.getR());
-        		boolean res = s.solve(fo);
-        		if (s.getClass() == BruteForce.class) {
-        			Result ret = ResultGenerator.getInstance();
-        			ret.setTruth(res);
-        			System.out.println("brute");
-        			// ret.setIteration(0);
-        		}
-        		
-        		System.out.println(fo);
-        		System.out.println(res);
+        			fo = rd.read(1);
+        			System.out.println(fo.getClass());
+        			//BruteForce s = new BruteForce();
+        			DeepPNS s = new DeepPNS();
+        			s.solve(fo);
+        			//ret.setTruth(s.solve_copy(fo));
+        		}	
         		return ResultGenerator.getInstance();
             });
 

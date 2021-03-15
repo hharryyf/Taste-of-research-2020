@@ -3,15 +3,19 @@ package qbfsolver;
 import java.util.Scanner;
 
 public class QdimacFileReader {
-	public CnfExpression read() {
+	public CnfExpression read(int type) {
 		Scanner sc = new Scanner(System.in);
 		String first = sc.nextLine();
 		first = first.trim();
 		String[] s = first.split("\\s+");
 		int n = Integer.valueOf(s[2]);
 		int m = Integer.valueOf(s[3]);
-		PersistentFormula ret = new PersistentFormula(n, m);
-		// CnfExpression ret = new DataStructureOptimizedFormula(n);
+		CnfExpression ret;
+		if (type == 1) {
+			ret = new DataStructureOptimizedFormula(n);
+		} else {
+			ret = new PersistentFormula(n, m);
+		}
 		int i;
 		while (m > 0) {
 			first = sc.nextLine();
@@ -35,10 +39,15 @@ public class QdimacFileReader {
 				}
 			} else {
 				// Disjunction c = new DisjunctionDefault();
-				Disjunction c = new PersistentClause();
+				Disjunction c;
+				if (type == 0) {
+					c = new PersistentClause();
+				} else {
+					c = new DisjunctionDefault();
+				}
 				for (i = 0 ; i < s.length; ++i) {
 					if (Integer.valueOf(s[i]) != 0) {
-						c.add(Integer.valueOf(s[i]), ret);
+						c.add(Integer.valueOf(s[i]));
 					}
 				}
 				

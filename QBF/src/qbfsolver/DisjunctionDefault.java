@@ -167,12 +167,8 @@ public class DisjunctionDefault implements Disjunction {
 	    return sb.toString();
 	}
 	
-	public void set(int v, PersistentFormula f, int val) {
+	public void set(int v, PersistentFormula f, int val, int id) {
 		return;
 	}
 
-	@Override
-	public void add(int val, PersistentFormula f) {
-		return;
-	}
 }

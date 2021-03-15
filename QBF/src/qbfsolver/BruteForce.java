@@ -1,10 +1,9 @@
 package qbfsolver;
 
 public class BruteForce implements Solver {
-	private int cnt = 0;
 	@Override
 	public boolean solve(CnfExpression f) {
-		System.out.println("print formula:\n" + f);
+		// System.out.println("print formula:\n" + f);
 		Result rr = ResultGenerator.getInstance();
 		rr.setIteration(1 + rr.getIteration());
 		if (f == null) return true;
@@ -16,7 +15,6 @@ public class BruteForce implements Solver {
 		if (type) {
 			Quantifier q = f.peekfreq(1, f.peek().isMax()).get(0);
 			f.set(q.getVal());
-			// System.out.println("set " + q.getVal());
 			// System.out.println(f);
 			f.dropquantifier(q.getVal());
 			//System.out.println(f);
@@ -24,8 +22,6 @@ public class BruteForce implements Solver {
 			f.commit();
 			boolean res = solve(f);
 			f.undo();
-			// System.out.println("undo!");
-			//System.out.println(f);
 			if (res) {
 				return true;
 			}
@@ -60,8 +56,7 @@ public class BruteForce implements Solver {
 		return res;
 	}
 	
-	public boolean solve_depth(CnfExpression f, int d) {
-		System.out.println(d + " " + cnt++);
+	public boolean solve_copy(CnfExpression f) {
 		if (f == null) return true;
 		if (f.getn() <= 0) return true;
 		int ret = f.evaluate();
@@ -69,17 +64,17 @@ public class BruteForce implements Solver {
 		if (ret == 1) return true;
 		CnfExpression f0 = f.duplicate();
 		CnfExpression f1 = f.duplicate();
-		Quantifier q = f.peek();
+		Quantifier q = f.peekfreq(1, f.peek().isMax()).get(0);
 		f1.set(q.getVal());
 		f0.set(-q.getVal());
-		f0.dropquantifier();
-		f1.dropquantifier();
+		f0.dropquantifier(q.getVal());
+		f1.dropquantifier(q.getVal());
 		f0.simplify();
 		f1.simplify();
 		if (q.isMax()) {
-			return solve_depth(f0, d + 1) || solve_depth(f1, d + 1);
+			return solve_copy(f0) || solve_copy(f1);
 		}
-		return solve_depth(f0, d + 1) && solve_depth(f1, d + 1);
+		return solve_copy(f0) && solve_copy(f1);
 	}
 }
 

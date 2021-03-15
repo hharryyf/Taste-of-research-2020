@@ -46,6 +46,9 @@ public class PNSv2 implements Solver {
 				curr.backpropagation();
 				if (pn == curr.getPn() && dn == curr.getDn()) break;
 				curr = curr.getParent();
+				if (!stk.isEmpty()) {
+					stk.peek().undo();
+				}
 				stk.pop();
 				tolvisited++;
 			}

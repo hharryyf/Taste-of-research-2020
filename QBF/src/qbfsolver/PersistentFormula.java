@@ -34,6 +34,7 @@ public class PersistentFormula implements CnfExpression {
 	// a priority of the quantifier
 	private int[] order;
 	private boolean[] isexist;
+	private Set<Integer> provedformula;
 	private Set<Integer> usedvar;
 	private boolean normalized;
 	public PersistentFormula(int n, int fcount) {
@@ -44,6 +45,7 @@ public class PersistentFormula implements CnfExpression {
 		this.fcount = fcount;
 		this.formula = new ArrayList<>();
 		this.assigned = new LinkedList<>();
+		this.provedformula = new TreeSet<>();
 		this.poscount = new int[n+1];
 		this.negcount = new int[n+1];
 		this.order = new int[n+1];
@@ -83,20 +85,30 @@ public class PersistentFormula implements CnfExpression {
 	public boolean hasQuantifier() {
 		return quantifiercount > 0;
 	}
-
+	
+	private boolean hasQuantifier(int v) {
+		if (v < 0) v = -v;
+		return this.quantifier.contains(new Pair<Integer, Quantifier>(order[v], new Quantifier(isMax(v), v)));
+	}
+	
 	@Override
 	public void addcnf(Disjunction c) {
 		List<Integer> ret = c.getLiteral();
 		for (int i = 0 ; i < ret.size(); ++i) {
 			int v = ret.get(i);
-			
 			this.updateCounter(v, 1);
 			if (ret.size() == 1) this.addUnit(v);
 			if (v < 0) v = -v;
 			varToformula.get(v).add(formula.size());
+			if (isMax(v) && c.getClass() == PersistentClause.class) {
+				((PersistentClause) c).incExist(1);
+			}
 		}
 		formula.add(c);
-		
+		// add an empty clause
+		if (c.isEmpty()) {
+			this.disproved++;
+		} 
 	}
 	
 	public void setNormal() {
@@ -106,15 +118,10 @@ public class PersistentFormula implements CnfExpression {
 	@Override
 	public void addquantifier(Quantifier q) {
 		this.quantifiercount++;
-		// System.out.println(this.normalized);
 		if (this.normalized) {
-			// System.out.println("rec " + q);
-			// System.err.println("enter here!");
 			if (!this.quantifier.contains(new Pair<Integer, Quantifier>(order[q.getVal()], q))) {
-				// System.out.println("insert " + q);
 				if (!isMax(q.getVal())) {
 					this.unicount++;
-					// System.out.println("undo " + q.getVal());
 				}
 			}
 			this.quantifier.add(new Pair<Integer, Quantifier>(order[q.getVal()], q));
@@ -200,7 +207,7 @@ public class PersistentFormula implements CnfExpression {
 	@Override
 	public void dropquantifier(int v) {
 		if (v < 0) v = -v;
-		if (this.quantifier.contains(new Pair<>(order[v], new Quantifier(isMax(v), v)))) {
+		if (this.hasQuantifier(v)) {
 			if (!isMax(v)) {
 				this.unicount--; 
 				//System.out.println("eliminate " + v);
@@ -213,24 +220,24 @@ public class PersistentFormula implements CnfExpression {
 
 	@Override
 	public void set(int v) {
-		if (this.getFreq(v) == 0) return;
+		if (this.evaluate() != -1) return;
+		if (!this.hasQuantifier(v)) return;
 		for (Integer id : this.varToformula.get(Math.abs(v))) {
+			if (this.provedformula.contains(id)) continue;
 			Disjunction d = this.formula.get(id);
-			d.set(Math.abs(v), this, v > 0 ? 1 : 0);
+			d.set(Math.abs(v), this, v > 0 ? 1 : 0, id);
 		}
 		
-		this.usedvar.add(v);
-		// System.err.println("finish!");
+		this.usedvar.add(Math.abs(v));
+		this.dropquantifier(v);
 	}
 	
 	private void unassign(int v) {
 		if (v < 0) v = -v;
-		// System.out.println("unset " + v);
 		for (Integer id : this.varToformula.get(v)) {
 			Disjunction d = this.formula.get(id);
-			d.set(v, this, -1);
+			d.set(v, this, -1, id);
 		}
-		// System.out.println("finish! unset");
 	}
 	
 	@Override
@@ -249,7 +256,6 @@ public class PersistentFormula implements CnfExpression {
 		for (int i = 1; i <= n; ++i) {
 			if (quantifier.contains(new Pair<>(order[i], new Quantifier(isMax(i), i)))) continue;
 			quantifier.add(new Pair<>(order[i], new Quantifier(isMax(i), i)));
-			// this.addquantifier(q);
 		}
 		
 		for (int i = 1; i <= n; ++i) {
@@ -259,53 +265,60 @@ public class PersistentFormula implements CnfExpression {
 		}
 		
 		eliminate_useless_quantifier();
-		// System.out.println(quantifier);
 		this.setNormal();
 		this.unicount = 0;
 		for (int i = 1; i <= n; ++i) {
-			// System.out.println(i + " pos= " + poscount[i] + " neg= " + negcount[i]);
 			if (this.getFreq(i) > 0 && !this.isMax(i)) this.unicount++;
+			if (this.getPosfreq(i) == 0 && this.getNegfreq(i) != 0) this.pure.add(-i);
+			if (this.getPosfreq(i) > 0 && this.getNegfreq(i) == 0) this.pure.add(i);
 		}
-		// System.err.println(this.normalized);
+		
+		this.simplify();
+		this.commit();
 	}
 
 	@Override
 	public void simplify() {
 		boolean t1 = true;
-		boolean t2 = false;
+		boolean t2 = true;
 		while (t1 || t2) {
 			t1 = unit_propagation();
-			// t2 = pure_literal_elimination();
+			t2 = pure_literal_elimination();
 		}
 		
 		this.eliminate_useless_quantifier();
+		this.unit.clear();
+		this.pure.clear();
+		this.useless.clear();
 	}
 
 	
 	private boolean unit_propagation() {
+		if (evaluate() != -1) return false; 
 		if (unit.isEmpty()) return false;
-		while (!unit.isEmpty()) {
+		//while (!unit.isEmpty()) {
 			int v = unit.pollFirst();
-			// System.out.println("unit clause " + v);
+			//System.out.println("unit out " + v);
 			if (isMax(v)) {
 				this.set(v);
 			} else {
 				this.set(-v);
 			}
-		}
+		//}
 		return true;
 	}
 	
 	private boolean pure_literal_elimination() {
+		if (evaluate() != -1) return false;
 		if (pure.isEmpty()) return false;
-		while (!pure.isEmpty()) {
+		//while (!pure.isEmpty()) {
 			int v = pure.pollFirst();
 			if (isMax(v)) {
 				this.set(v);
 			} else {
 				this.set(-v);
 			}
-		}
+		//}
 		return true;
 	}
 	private void eliminate_useless_quantifier() {
@@ -320,7 +333,7 @@ public class PersistentFormula implements CnfExpression {
 		if (this.disproved > 0) return 0;
 		if (this.proved == this.fcount) return 1;
 		if (this.unicount == 0) {
-			ISolver s = SolverFactory.newDefault ();
+			ISolver s = SolverFactory.newDefault();
 			s.setTimeout (900);
 			s.newVar(this.n + 1);
 			s.setExpectedNumberOfClauses(this.fcount);
@@ -331,7 +344,7 @@ public class PersistentFormula implements CnfExpression {
 				try {
 					s.addClause(new VecInt(clause));
 				} catch (ContradictionException e) {
-					e.printStackTrace();
+					return 0;
 				}
 			}
 			
@@ -393,7 +406,7 @@ public class PersistentFormula implements CnfExpression {
 			i++;
 			j--;
 		}
-		
+		// System.out.println(ret);
 		return ret;
 	}
 
@@ -411,7 +424,7 @@ public class PersistentFormula implements CnfExpression {
 			}
 			usedvar.clear();
 			this.assigned.add(st);
-		}
+		} 
 	}
 	
 	@Override
@@ -420,13 +433,13 @@ public class PersistentFormula implements CnfExpression {
 			Set<Integer> last = assigned.pollLast();
 			for (Integer it : last) {
 				it = Math.abs(it);
-				this.unassign(it);
-				// System.out.println("recover " + it);
 				this.addquantifier(new Quantifier(isMax(it), it));
+				this.unassign(it);
 			}
 		}
-		this.unit.clear();
 		this.pure.clear();
+		this.unit.clear();
+		this.useless.clear();
 	}
 	
 	public void addUnit(int v) {
@@ -480,7 +493,19 @@ public class PersistentFormula implements CnfExpression {
 			}
 		}
 		
+		if (poscount[v] > 0 && negcount[v] > 0) {
+			pure.remove(v);
+			pure.remove(-v);
+		}
 		 
+	}
+	
+	public void addProved(int id, boolean direction) {
+		if (direction) {
+			this.provedformula.add(id);
+		} else {
+			this.provedformula.remove(id);
+		}
 	}
 	
 	public String toString() {
