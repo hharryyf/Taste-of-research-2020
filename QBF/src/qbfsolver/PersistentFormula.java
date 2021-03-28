@@ -71,6 +71,11 @@ public class PersistentFormula implements CnfExpression {
 		this.disproved += inc;
 	}
 	
+	public int getLevel(int val) {
+		if (val < 0) val = -val;
+		return order[val];
+	}
+	
 	public boolean isMax(int val) {
 		if (val < 0) val = -val;
 		return isexist[val];
@@ -271,6 +276,23 @@ public class PersistentFormula implements CnfExpression {
 			if (this.getFreq(i) > 0 && !this.isMax(i)) this.unicount++;
 			if (this.getPosfreq(i) == 0 && this.getNegfreq(i) != 0) this.pure.add(-i);
 			if (this.getPosfreq(i) > 0 && this.getNegfreq(i) == 0) this.pure.add(i);
+		}
+		
+		for (int i = 0; i < formula.size(); ++i) {
+			int lv = Integer.MAX_VALUE, cnt = 0, target = 0;
+			List<Integer> ret = this.formula.get(i).getLiteral();
+			for (Integer v : ret) {
+				if (this.isMax(v)) {
+					target = v;
+					cnt++;
+				} else {
+					lv = Math.min(lv, target);
+				}
+			}
+			
+			if (target != 0 && cnt == 1 && lv > this.getLevel(target)) {
+				this.addUnit(target);
+			}
 		}
 		
 		this.simplify();

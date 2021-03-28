@@ -61,6 +61,10 @@ public class QdimacFileReader {
 		}
 		sc.close();
 		ret.normalize();
+		if (type == 1) {
+			ret.simplify();
+			ret = ret.duplicate();
+		}
 		return ret;
 	}
 }

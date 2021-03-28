@@ -207,17 +207,39 @@ public class PersistentClause implements Disjunction {
 		}
 		
 		// we consider to do unit propagation
-		if (val != -1 && evaluate() == -1 && this.disproved == this.literal.size() - 1) {
+		
+		/*if (val != -1 && evaluate() == -1 && this.disproved == this.literal.size() - 1) {
 			for (Pair<Integer, Integer> p : this.literal) {
 				if (p.second == -1) {
 					f.addUnit(p.first);
 					break;
 				}
 			}
-		} /*else if (this.hasvar(924)) {
+		} *//*else if (this.hasvar(924)) {
 			System.out.println("value assigned= " + val);
 			System.out.println(this);
 		}*/
+		if (val != -1 && evaluate() == -1 && this.existcount == 1) {
+			int target = 0, lv = Integer.MAX_VALUE;
+			for (Pair<Integer, Integer> p : this.literal) {
+				if (p.second == -1 && f.isMax(p.first)) {
+					target = p.first;
+				} 
+				
+				if (p.second == -1 && !f.isMax(p.first)) {
+					lv = Math.min(lv, f.getLevel(p.first));
+				}
+			}
+			
+			if (target == 0) {
+				System.err.println("bad");
+				System.exit(0);
+			}
+			
+			if (f.getLevel(target) < lv) {
+				f.addUnit(target);
+			}
+		}
 	}
 
 

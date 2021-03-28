@@ -263,7 +263,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		}
 		
 		// System.out.println("freqbin " + mp);
-		System.out.println(mp);
+		// System.out.println(mp);
 		return ret;
 	}
 	
@@ -379,7 +379,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 		if (this.terminal() != -1) return false;
 		if (unit.isEmpty()) return false;
 		int v = unit.pollFirst();
-		System.out.println("unit out " + v);
+		//System.out.println("unit out " + v);
 		if (varToquantifier.containsKey(Math.abs(v))) {
 			if (quantifiers.get(varToquantifier.get(Math.abs(v))).isMax()) {
 				this.set(v);
