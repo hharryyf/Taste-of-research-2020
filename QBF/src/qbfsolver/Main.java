@@ -11,7 +11,7 @@ public class Main {
             	QdimacFileReader rd = new QdimacFileReader();
         		CnfExpression fo;
         		Result ret = ResultGenerator.getInstance();
-        		if (args.length == 0) {
+        		if (args.length == 1) {
         			fo = rd.read(0);
         		    DeepPNS s = new DeepPNS();
         			s.solve(fo);
