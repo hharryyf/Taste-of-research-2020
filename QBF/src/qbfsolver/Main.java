@@ -11,15 +11,16 @@ public class Main {
             	QdimacFileReader rd = new QdimacFileReader();
         		CnfExpression fo;
         		Result ret = ResultGenerator.getInstance();
-        		if (args.length == 1) {
+        		if (args.length == 0) {
         			fo = rd.read(0);
-        		    DeepPNS s = new DeepPNS();
-        			s.solve(fo);
+        			BruteForceIterative s = new BruteForceIterative();
+        			ret.setTruth(s.solve(fo));
         		} else {
         			fo = rd.read(0);
         			System.out.println(fo.getClass());
-        			BruteForce s = new BruteForce();
-        			ret.setTruth(s.solve(fo));
+        			ResultGenerator.getCommandLine().setR(Double.valueOf(args[0]));
+        			DeepPNS s = new DeepPNS();
+        			s.solve(fo);
         		}	
         		return ResultGenerator.getInstance();
             });

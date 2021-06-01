@@ -171,4 +171,9 @@ public class DisjunctionDefault implements Disjunction {
 		return;
 	}
 
+	@Override
+	public List<Integer> getAll() {
+		return this.getVariable();
+	}
+
 }

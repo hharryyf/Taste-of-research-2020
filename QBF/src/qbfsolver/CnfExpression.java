@@ -16,7 +16,7 @@ public interface CnfExpression {
 	 * Let v to be true
 	 * @param v, positive means |v| is true, negative means |v| is false
 	 */
-	public void set(int v);
+	public boolean set(int v);
 	public void setSatisfied(boolean val);
 	public void normalize();
 	public void simplify();

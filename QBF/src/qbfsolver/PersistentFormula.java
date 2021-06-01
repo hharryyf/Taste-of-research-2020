@@ -16,27 +16,28 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 
 public class PersistentFormula implements CnfExpression {
-	
 	private int n, fcount;
 	private List<Disjunction> formula;
-	private List<List<Integer>> varToformula;
+	private List<Set<Integer>> varToformula;
+	private List<LinkedList<Integer>> usedformula;
 	private int quantifiercount = 0;
 	private int unicount = 0;
 	// private int existcount = 0;
 	private int proved = 0, disproved = 0;
 	// record the assigned variables in the last assignment
-	private LinkedList<Set<Integer>> assigned;
+	private LinkedList<LinkedList<Integer>> assigned;
 	private int[] poscount;
 	private int[] negcount;
 	// (order,quantifier)
 	private TreeSet<Pair<Integer, Quantifier>> quantifier;
-	private TreeSet<Integer> pure, unit, useless;
+	private HashSet<Integer> pure, unit, useless;
 	// a priority of the quantifier
 	private int[] order;
 	private boolean[] isexist;
 	private Set<Integer> provedformula;
-	private Set<Integer> usedvar;
+	private LinkedList<Integer> usedvar;
 	private boolean normalized;
+	private LinkedList<Pair<Integer, Character>> currentassign;
 	public PersistentFormula(int n, int fcount) {
 		int i;
 		this.n = n;
@@ -50,17 +51,20 @@ public class PersistentFormula implements CnfExpression {
 		this.negcount = new int[n+1];
 		this.order = new int[n+1];
 		this.isexist = new boolean[n+1];
-		this.usedvar = new HashSet<>();
+		this.usedvar = new LinkedList<>();
 		this.quantifier = new TreeSet<>();
 		this.varToformula = new ArrayList<>();
+		this.usedformula = new ArrayList<>();
 		for (i = 0 ; i <= n; ++i) {
 			this.isexist[i] = true;
 			this.poscount[i] = this.negcount[i] = this.order[i] = 0;
-			this.varToformula.add(new ArrayList<>());
+			this.varToformula.add(new HashSet<>());
+			this.usedformula.add(new LinkedList<>());
 		}
-		this.pure = new TreeSet<>();
-		this.unit = new TreeSet<>();
-		this.useless = new TreeSet<>();
+		this.pure = new HashSet<>();
+		this.unit = new HashSet<>();
+		this.useless = new HashSet<>();
+		this.currentassign = new LinkedList<>();
 	}
 	
 	public void incProved(int inc) {
@@ -100,6 +104,10 @@ public class PersistentFormula implements CnfExpression {
 	public void addcnf(Disjunction c) {
 		List<Integer> ret = c.getLiteral();
 		for (int i = 0 ; i < ret.size(); ++i) {
+			if (c.evaluate() == 1) {
+				this.proved++;
+				break;
+			}
 			int v = ret.get(i);
 			this.updateCounter(v, 1);
 			if (ret.size() == 1) this.addUnit(v);
@@ -149,8 +157,6 @@ public class PersistentFormula implements CnfExpression {
 			}
 			this.quantifier.add(new Pair<Integer, Quantifier>(order[q.getVal()], q));
 		}
-		
-		
 	}
 
 	@Override
@@ -215,33 +221,52 @@ public class PersistentFormula implements CnfExpression {
 		if (this.hasQuantifier(v)) {
 			if (!isMax(v)) {
 				this.unicount--; 
-				//System.out.println("eliminate " + v);
 			}
 			this.quantifiercount--;
+			quantifier.remove(new Pair<>(order[v], new Quantifier(isMax(v), v)));
+			this.usedvar.add(v);
+			this.currentassign.add(new Pair<Integer, Character>(v, 'N'));
 		}
-		quantifier.remove(new Pair<>(order[v], new Quantifier(isMax(v), v)));
-		this.usedvar.add(v);
 	}
 
 	@Override
-	public void set(int v) {
-		if (this.evaluate() != -1) return;
-		if (!this.hasQuantifier(v)) return;
-		for (Integer id : this.varToformula.get(Math.abs(v))) {
+	public boolean set(int v) {
+		if (this.evaluate() != -1) return false;
+		if (!this.hasQuantifier(v)) return false;
+		List<Integer> list = new ArrayList<Integer>(this.varToformula.get(Math.abs(v)));
+		for (Integer id : list) {
 			if (this.provedformula.contains(id)) continue;
 			Disjunction d = this.formula.get(id);
 			d.set(Math.abs(v), this, v > 0 ? 1 : 0, id);
+			this.usedformula.get(Math.abs(v)).add(id);
 		}
 		
-		this.usedvar.add(Math.abs(v));
+		//this.usedvar.add(Math.abs(v));
 		this.dropquantifier(v);
+		return true;
+	}
+	
+	private boolean set(int v, char type) {
+		if (this.set(v)) {
+			this.currentassign.getLast().second = type;
+		}
+		return false;
 	}
 	
 	private void unassign(int v) {
 		if (v < 0) v = -v;
-		for (Integer id : this.varToformula.get(v)) {
+		while (!this.usedformula.get(v).isEmpty()) {
+			int id = this.usedformula.get(v).pollLast();
 			Disjunction d = this.formula.get(id);
 			d.set(v, this, -1, id);
+		}
+		if (this.currentassign.isEmpty() || Math.abs(this.currentassign.getLast().first) != v) {
+			System.err.println("there's a problem");
+			System.err.println(currentassign);
+			System.err.println(v);
+			System.exit(0);
+		} else {
+			this.currentassign.removeLast();
 		}
 	}
 	
@@ -318,34 +343,35 @@ public class PersistentFormula implements CnfExpression {
 	private boolean unit_propagation() {
 		if (evaluate() != -1) return false; 
 		if (unit.isEmpty()) return false;
-		//while (!unit.isEmpty()) {
-			int v = unit.pollFirst();
-			//System.out.println("unit out " + v);
-			if (isMax(v)) {
-				this.set(v);
-			} else {
-				this.set(-v);
-			}
-		//}
+		int v = unit.iterator().next();
+		unit.remove(v);
+		if (isMax(v)) {
+			this.set(v, 'U');
+		} else {
+			this.set(-v, 'U');
+		}
 		return true;
 	}
 	
 	private boolean pure_literal_elimination() {
 		if (evaluate() != -1) return false;
 		if (pure.isEmpty()) return false;
-		//while (!pure.isEmpty()) {
-			int v = pure.pollFirst();
-			if (isMax(v)) {
-				this.set(v);
-			} else {
-				this.set(-v);
-			}
-		//}
+		int v = pure.iterator().next();
+		pure.remove(v);
+		if (isMax(v)) {
+			this.set(v, 'P');
+		} else {
+			this.set(-v, 'P');
+		}
 		return true;
 	}
+	
 	private void eliminate_useless_quantifier() {
 		for (Integer id : this.useless) {
 			this.dropquantifier(id);
+			if (!this.currentassign.isEmpty() && Math.abs(this.currentassign.getLast().first) == Math.abs(id)) {
+				this.currentassign.getLast().second = 'B';
+			}
 		}
 	}
 	
@@ -356,7 +382,7 @@ public class PersistentFormula implements CnfExpression {
 		if (this.proved == this.fcount) return 1;
 		if (this.unicount == 0) {
 			ISolver s = SolverFactory.newDefault();
-			s.setTimeout (900);
+			s.setTimeout(900);
 			s.newVar(this.n + 1);
 			s.setExpectedNumberOfClauses(this.fcount);
 			for (Disjunction d : this.formula) {
@@ -372,7 +398,10 @@ public class PersistentFormula implements CnfExpression {
 			
 			try {
 				boolean curr = s.isSatisfiable();
-				if (curr) return 1;
+				if (curr) {
+					return 1;
+				}
+				
 				return 0;
 			} catch (TimeoutException e) {
 				e.printStackTrace();
@@ -440,20 +469,19 @@ public class PersistentFormula implements CnfExpression {
 	
 	public void commit() {
 		if (!this.usedvar.isEmpty()) {
-			Set<Integer> st = new HashSet<>();
-			for (Integer it : usedvar) {
-				st.add(it);
-			}
+			LinkedList<Integer> st = new LinkedList<>(usedvar);
 			usedvar.clear();
 			this.assigned.add(st);
-		} 
+		}
+		//System.out.println(assigned);
 	}
 	
 	@Override
 	public void undo() {
 		if (!this.assigned.isEmpty()) {
-			Set<Integer> last = assigned.pollLast();
-			for (Integer it : last) {
+			LinkedList<Integer> last = assigned.pollLast();
+			while (!last.isEmpty()) {
+				int it = last.pollLast();
 				it = Math.abs(it);
 				this.addquantifier(new Quantifier(isMax(it), it));
 				this.unassign(it);
@@ -525,13 +553,24 @@ public class PersistentFormula implements CnfExpression {
 	public void addProved(int id, boolean direction) {
 		if (direction) {
 			this.provedformula.add(id);
+			List<Integer> list = this.formula.get(id).getAll();
+			for (Integer v : list) {
+				this.varToformula.get(Math.abs(v)).remove(id);
+			}
 		} else {
 			this.provedformula.remove(id);
+			List<Integer> list = this.formula.get(id).getAll();
+			for (Integer v : list) {
+				this.varToformula.get(Math.abs(v)).add(id);
+			}
 		}
 	}
 	
+	public LinkedList<Pair<Integer, Character>> getAssignment() {
+		return this.currentassign;
+	}
+	
 	public String toString() {
-		// System.out.println(poscount[9] + " " + negcount[9]);
 		System.out.println(this.quantifier);
 		System.out.println(this.assigned);
 		for (int i = 1; i <= n; ++i) {

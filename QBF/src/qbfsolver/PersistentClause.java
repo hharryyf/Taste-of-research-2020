@@ -264,4 +264,13 @@ public class PersistentClause implements Disjunction {
 	public String toString() {
 		return "[" + this.literal.toString() + " " + this.disproved + " " + this.proved + " " + this.existcount + " " + this.evaluate() + "]";
 	}
+
+	@Override
+	public List<Integer> getAll() {
+		List<Integer> ret = new ArrayList<>();
+		for (Pair<Integer, Integer> p : this.literal) {
+			ret.add(p.first);
+		}
+		return ret;
+	}
 }

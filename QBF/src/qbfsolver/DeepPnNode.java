@@ -108,7 +108,7 @@ public class DeepPnNode {
 		
 		int i, j;
 		//System.out.println("expansion!");
-		this.candidate = f.peekfreq(varcount, f.peek().isMax());		
+		this.candidate = f.peek(varcount, f.peek().isMax());		
 		for (i = 0 ; i < (1 << varcount); ++i) {
 			CnfExpression fp = f.duplicate();
 			for (j = 0 ; j < varcount; ++j) {

@@ -268,7 +268,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 	}
 	
 	@Override
-	public void set(int w) {
+	public boolean set(int w) {
 		// pass in the literal that is satisfied w, recompute v based on abs
 		int v = Math.abs(w);
 		if (varTocnf.containsKey(v)) {
@@ -280,6 +280,7 @@ public class DataStructureOptimizedFormula implements CnfExpression {
 			}
 		}
 		varTocnf.remove(v);
+		return true;
 	}
 	
 	

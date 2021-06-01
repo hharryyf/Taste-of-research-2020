@@ -8,6 +8,7 @@ public interface Disjunction {
 	public boolean isEmpty();
 	public List<Integer> getLiteral();
 	public List<Integer> getVariable();
+	public List<Integer> getAll();
 	public int getSize();
 	public void add(int val);
 	public void set(int v, int val);

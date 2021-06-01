@@ -20,9 +20,9 @@ public class DeepPNS implements Solver {
 		int i = 0, tolvisited = 0;
 		Stack<CnfExpression> stk = new Stack<CnfExpression>();
 		while (i <= this.maxT && !root.isSolved()) {
-			if (i % 1000 == 0) {
+			/*if (i % 50000 == 0) {
 				System.out.println("Iteration #" + i + " pn = " + root.getPn() + " dn= " + root.getDn());
-			}
+			}*/
 					
 			if (stk.empty()) {
 				stk.push(f.duplicate());
